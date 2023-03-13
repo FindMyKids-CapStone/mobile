@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "796024580733",
+    "project_id": "findmykid-b9bb5",
+    "storage_bucket": "findmykid-b9bb5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:796024580733:android:02c093a4a8f535bb5c5f14",
+        "android_client_info": {
+          "package_name": "com.example.app_parent"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "796024580733-ijlfi3uf03ge49iuf3bque3dldbn8ict.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYyKt2iwphWy9C0SLaaoFfnV4KPJn0Lmo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "796024580733-ijlfi3uf03ge49iuf3bque3dldbn8ict.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
