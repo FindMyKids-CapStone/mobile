@@ -12,7 +12,7 @@ class BirthdayEdition extends StatefulWidget {
   //     String phone,
   //     String country,
   //     String level}) setBirthday;
-  final DateTime? birthday;
+  final String? birthday;
 
   @override
   State<BirthdayEdition> createState() => _BirthdayEditionState();
@@ -22,7 +22,7 @@ class _BirthdayEditionState extends State<BirthdayEdition> {
   void _selectDate(BuildContext context) async {
     DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: widget.birthday ?? DateTime.now(), // Refer step 1
+      initialDate: DateTime.now(), // Refer step 1
       firstDate: DateTime(1900),
       lastDate: DateTime(2030),
     );
@@ -62,7 +62,7 @@ class _BirthdayEditionState extends State<BirthdayEdition> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    stringFormatDateTime(widget.birthday ?? DateTime.now()),
+                    widget.birthday ?? "",
                     style: const TextStyle(fontSize: 17),
                   ),
                 ],

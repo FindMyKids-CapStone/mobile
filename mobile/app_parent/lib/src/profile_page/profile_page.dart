@@ -1,7 +1,13 @@
+import 'dart:convert';
+
+import 'package:app_parent/controllers/profile_controller/profile_controller.dart';
+import 'package:app_parent/models/profile_model/profile_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'components/birthday.dart';
 import 'components/phone.dart';
+import 'package:http/http.dart' as http;
 
 class ProfilePage extends StatefulWidget {
   DateTime? birthday;
@@ -51,7 +57,26 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return FutureBuilder(
+      future: getData(),
+      builder: (ctx, snapshot) {
+      if (snapshot.connectionState == ConnectionState.done) {
+      // If we got an error
+      if (snapshot.hasError) {
+        return Center(
+          child: Text(
+            '${snapshot.error} occurred',
+            style: TextStyle(fontSize: 18),
+          ),
+        );
+         
+        // if we got our data
+      } else if (snapshot.hasData) {
+        // Extracting data from snapshot object
+        final data = snapshot.data as Profile;
+        debugPrint("fullName ${data.fullName}");
+        _nameController.text = data.fullName ?? "";
+        return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -144,111 +169,25 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
                 ),
-                BirthdayEdition(birthday: widget.birthday),
+                BirthdayEdition(birthday: data.birthday),
                 PhoneEdition(
-                  // changePhone: setForm,
-                  phone: widget.phone ?? "",
-                  // isPhoneActivated:
-                  //     authProvider.userLoggedIn.isPhoneActivated ?? false
+                  phone: data.phoneNumber ?? "",
                 ),
-                // DropdownEdit(
-                //   title: lang.country,
-                //   selectedItem: _country != null ? _country as String : "VN",
-                //   items: countryList,
-                //   onChange: setForm,
-                //   fieldName: "Country",
-                // ),
-                // DropdownEdit(
-                //   title: lang.level,
-                //   selectedItem: _level != null ? _level as String : "BEGINNER",
-                //   items: listLevel,
-                //   onChange: setForm,
-                //   fieldName: "Level",
-                // ),
-                // Container(
-                //   margin: const EdgeInsets.only(bottom: 2, left: 5),
-                //   child: Row(
-                //     children: [
-                //       Text(
-                //         lang.wantToLearn,
-                //         style: const TextStyle(fontSize: 17),
-                //       ),
-                //     ],
-                //   ),
-                // ),
-                // WantToLearn(
-                //     userTopics: _topics,
-                //     editTopics: editTopics,
-                //     userTestPreparations: _tests,
-                //     editTestPreparations: editTests),
                 Container(
                   margin: const EdgeInsets.only(top: 20, bottom: 20),
                   child: ElevatedButton(
                     onPressed: () async {
-                      // if (_phone != null && _phone?.isEmpty as bool) {
-                      //   showTopSnackBar(
-                      //     context,
-                      //     CustomSnackBar.error(message: lang.errPhoneNumber),
-                      //     showOutAnimationDuration:
-                      //         const Duration(milliseconds: 700),
-                      //     displayDuration: const Duration(milliseconds: 200),
-                      //   );
-                      // } else if (_nameController.text.isEmpty) {
-                      //   showTopSnackBar(
-                      //     context,
-                      //     CustomSnackBar.error(message: lang.errEnterName),
-                      //     showOutAnimationDuration:
-                      //         const Duration(milliseconds: 700),
-                      //     displayDuration: const Duration(milliseconds: 200),
-                      //   );
-                      // } else if (_birthday != null &&
-                      //     _birthday!.millisecondsSinceEpoch >
-                      //         DateTime.now().millisecondsSinceEpoch) {
-                      //   showTopSnackBar(
-                      //     context,
-                      //     CustomSnackBar.error(message: lang.errBirthday),
-                      //     showOutAnimationDuration:
-                      //         const Duration(milliseconds: 700),
-                      //     displayDuration: const Duration(milliseconds: 200),
-                      //   );
-                      // } else {
-                      //   String bdArg =
-                      //       "${_birthday!.year.toString()}-${_birthday!.month.toString().padLeft(2, "0")}-${_birthday!.day..toString().padLeft(2, "0")}";
-
-                      //   final res = await UserService.updateInfo(
-                      //     authProvider.tokens!.access.token,
-                      //     _nameController.text,
-                      //     _country as String,
-                      //     bdArg,
-                      //     _level as String,
-                      //     _topics.map((e) => e.id.toString()).toList(),
-                      //     _tests.map((e) => e.id.toString()).toList(),
-                      //   );
-                      //   if (res != null) {
-                      //     authProvider.logIn(
-                      //         res, authProvider.tokens as Tokens);
-                      //     showTopSnackBar(
-                      //       context,
-                      //       CustomSnackBar.success(
-                      //         message: lang.successUpdateProfile,
-                      //         backgroundColor: Colors.green,
-                      //       ),
-                      //       showOutAnimationDuration:
-                      //           const Duration(milliseconds: 700),
-                      //       displayDuration: const Duration(milliseconds: 200),
-                      //     );
-                      //     Navigator.pop(context);
-                      //   } else {
-                      //     showTopSnackBar(
-                      //       context,
-                      //       CustomSnackBar.error(
-                      //           message: lang.errUpdateProfile),
-                      //       showOutAnimationDuration:
-                      //           const Duration(milliseconds: 700),
-                      //       displayDuration: const Duration(milliseconds: 200),
-                      //     );
-                      //   }
-                      // }
+                      debugPrint("abc");
+                        var client = http.Client();
+                        try {
+                          var res = await client
+                                  .get(Uri.parse('http://10.124.7.242:8080/information'));
+                              jsonEncode(res.body);
+                          debugPrint(res.body);
+                        } catch(err) {
+                          debugPrint("err: $err");
+                        }
+                      
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xff007CFF),
@@ -271,6 +210,9 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ),
-    );
+    );}  
+    }
+    return Center(child: CircularProgressIndicator());
+    });
   }
 }
