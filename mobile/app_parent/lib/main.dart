@@ -27,7 +27,10 @@ class MyApp extends StatelessWidget {
                 home: Scaffold(
                     body: Center(child: Text('An error has been occurred'))));
           }
-          return const MaterialApp(title: "abc", home: LoginPage());
+          return const MaterialApp(
+              debugShowCheckedModeBanner: false,
+              title: "abc",
+              home: LoginPage());
         });
   }
 }
