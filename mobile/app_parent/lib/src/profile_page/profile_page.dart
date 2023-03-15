@@ -1,12 +1,10 @@
-import 'dart:convert';
-
-import 'package:app_parent/controllers/user_controller/user_controller.dart';
-import 'package:app_parent/models/profile_model/user_model.dart';
+import 'package:app_parent/src/core/colors/hex_color.dart';
+import 'package:app_parent/src/core/fade_animation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'components/birthday.dart';
-import 'components/phone.dart';
-import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+
+// ignore: constant_identifier_names
+enum FormData { Name, Phone, Email, Birthday }
 
 class ProfilePage extends StatefulWidget {
   DateTime? birthday;
@@ -21,7 +19,18 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final _nameController = TextEditingController();
+  Color enabled = const Color.fromARGB(255, 63, 56, 89);
+  Color enabledtxt = Colors.white;
+  Color deaible = Colors.grey;
+  Color backgroundColor = const Color(0xFF1F1A30);
+  bool ispasswordev = true;
+
+  FormData? selected;
+
+  TextEditingController nameController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController birthdayController = TextEditingController();
 
   // setForm(
   //     {DateTime? birthday,
@@ -55,172 +64,358 @@ class _ProfilePageState extends State<ProfilePage> {
   // }
 
   @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: getData(),
-        builder: (ctx, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            // If we got an error
-            if (snapshot.hasError) {
-              return Center(
-                child: Text(
-                  '${snapshot.error} occurred',
-                  style: const TextStyle(fontSize: 18),
-                ),
-              );
+  void initState() {
+    birthdayController.text = DateFormat("dd/MM/yyyy")
+        .format(DateTime.now()); //set the initial value of text field
+    super.initState();
+  }
 
-              // if we got our data
-            } else if (snapshot.hasData) {
-              // Extracting data from snapshot object
-              final data = snapshot.data as User;
-              debugPrint("fullName ${data.fullName}");
-              _nameController.text = data.fullName ?? "";
-              return SafeArea(
-                child: Scaffold(
-                  backgroundColor: Colors.white,
-                  appBar: AppBar(
-                    leadingWidth: 20,
-                    centerTitle: false,
-                    elevation: 0,
-                    backgroundColor: Colors.white,
-                    iconTheme: IconThemeData(color: Colors.grey[800]),
-                    title: Container(
-                      margin: const EdgeInsets.only(left: 10),
-                      child: Text(
-                        "Thông tin cá nhân",
-                        style: TextStyle(color: Colors.grey[800]),
-                      ),
+  @override
+  Widget build(BuildContext context) {
+    // return FutureBuilder(
+    //     future: getData(),
+    //     builder: (ctx, snapshot) {
+    //       if (snapshot.connectionState == ConnectionState.done) {
+    //         // If we got an error
+    //         if (snapshot.hasError) {
+    //           return Center(
+    //             child: Text(
+    //               '${snapshot.error} occurred',
+    //               style: TextStyle(fontSize: 18),
+    //             ),
+    //           );
+    //           // if we got our data
+    //         } else if (snapshot.hasData) {
+    //           // Extracting data from snapshot object
+    //           final data = snapshot.data as Profile;
+    //           debugPrint("fullName ${data.fullName}");
+    //           _nameController.text = data.fullName ?? "";
+    //         }
+    //       }
+    //       return Center(child: CircularProgressIndicator());
+    //     });
+    return SafeArea(
+        child: Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            stops: const [0.1, 0.4, 0.7, 0.9],
+            colors: [
+              HexColor("#4b4293").withOpacity(0.8),
+              HexColor("#4b4293"),
+              HexColor("#08418e"),
+              HexColor("#08418e")
+            ],
+          ),
+          image: DecorationImage(
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+                HexColor("#fff").withOpacity(0.2), BlendMode.dstATop),
+            image: const NetworkImage(
+              'https://mir-s3-cdn-cf.behance.net/project_modules/fs/01b4bd84253993.5d56acc35e143.jpg',
+            ),
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Card(
+                  elevation: 5,
+                  color:
+                      const Color.fromARGB(255, 171, 211, 250).withOpacity(0.4),
+                  child: Container(
+                    width: 400,
+                    padding: const EdgeInsets.all(40.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ),
-                  body: SingleChildScrollView(
-                    child: Container(
-                      margin: const EdgeInsets.only(right: 15, left: 15),
-                      child: Column(
-                        children: [
-                          Stack(
-                            children: [
-                              Container(
-                                margin: const EdgeInsets.only(bottom: 10),
-                                height: 100,
-                                width: 100,
-                                child: CircleAvatar(
-                                    backgroundColor: Colors.white,
-                                    child: ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(1000),
-                                        child: const Image(
-                                            image: AssetImage(
-                                                "assets/img/avatar.jpg")))),
-                              ),
-                              Positioned(
-                                bottom: 10,
-                                right: 0,
-                                child: GestureDetector(
-                                  onTap: () {},
-                                  child: CircleAvatar(
-                                    backgroundColor: Colors.grey[300],
-                                    radius: 15,
-                                    child: SvgPicture.asset(
-                                        "assets/svg/ic_camera.svg",
-                                        color: Colors.grey[700]),
-                                  ),
-                                ),
-                              )
-                            ],
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const FadeAnimation(
+                          delay: 0.8,
+                          child: CircleAvatar(
+                            backgroundImage:
+                                AssetImage("assets/img/avatar.jpg"),
+                            radius: 75,
                           ),
-                          Text(widget.email ?? "",
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[800],
-                                  fontWeight: FontWeight.w500)),
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 10, top: 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  margin:
-                                      const EdgeInsets.only(bottom: 7, left: 5),
-                                  child: const Text("Họ và tên",
-                                      style: TextStyle(fontSize: 17)),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        FadeAnimation(
+                          delay: 1,
+                          child: Text(
+                            "Thông tin cá nhân",
+                            style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.white.withOpacity(0.9),
+                                letterSpacing: 0.5),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        FadeAnimation(
+                          delay: 1,
+                          child: Container(
+                            width: 300,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12.0),
+                              color: selected == FormData.Email
+                                  ? enabled
+                                  : backgroundColor,
+                            ),
+                            padding: const EdgeInsets.all(5.0),
+                            child: TextField(
+                              controller: nameController,
+                              onTap: () {
+                                setState(() {
+                                  selected = FormData.Name;
+                                });
+                              },
+                              decoration: InputDecoration(
+                                enabledBorder: InputBorder.none,
+                                border: InputBorder.none,
+                                prefixIcon: Icon(
+                                  Icons.title,
+                                  color: selected == FormData.Name
+                                      ? enabledtxt
+                                      : deaible,
+                                  size: 20,
                                 ),
-                                TextField(
-                                  style: TextStyle(
-                                      fontSize: 17, color: Colors.grey[900]),
-                                  controller: _nameController,
-                                  decoration: const InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    contentPadding:
-                                        EdgeInsets.only(left: 15, right: 15),
-                                    border: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.black26, width: 0.3),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(10))),
-                                    enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.black26, width: 0.3),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(10))),
-                                    focusedBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.black26, width: 0.3),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(10))),
-                                    hintText: "Họ và tên",
-                                  ),
-                                )
-                              ],
+                                hintText: 'Họ và tên',
+                                hintStyle: TextStyle(
+                                    color: selected == FormData.Name
+                                        ? enabledtxt
+                                        : deaible,
+                                    fontSize: 12),
+                              ),
+                              textAlignVertical: TextAlignVertical.center,
+                              style: TextStyle(
+                                  color: selected == FormData.Name
+                                      ? enabledtxt
+                                      : deaible,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12),
                             ),
                           ),
-                          BirthdayEdition(birthday: data.birthday),
-                          PhoneEdition(
-                            phone: data.phoneNumber ?? "",
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        FadeAnimation(
+                          delay: 1,
+                          child: Container(
+                            width: 300,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12.0),
+                              color: selected == FormData.Phone
+                                  ? enabled
+                                  : backgroundColor,
+                            ),
+                            padding: const EdgeInsets.all(5.0),
+                            child: TextField(
+                              controller: phoneController,
+                              onTap: () {
+                                setState(() {
+                                  selected = FormData.Phone;
+                                });
+                              },
+                              decoration: InputDecoration(
+                                enabledBorder: InputBorder.none,
+                                border: InputBorder.none,
+                                prefixIcon: Icon(
+                                  Icons.phone_android_rounded,
+                                  color: selected == FormData.Phone
+                                      ? enabledtxt
+                                      : deaible,
+                                  size: 20,
+                                ),
+                                hintText: 'Số điện thoại',
+                                hintStyle: TextStyle(
+                                    color: selected == FormData.Phone
+                                        ? enabledtxt
+                                        : deaible,
+                                    fontSize: 12),
+                              ),
+                              textAlignVertical: TextAlignVertical.center,
+                              style: TextStyle(
+                                  color: selected == FormData.Phone
+                                      ? enabledtxt
+                                      : deaible,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12),
+                            ),
                           ),
-                          Container(
-                            margin: const EdgeInsets.only(top: 20, bottom: 20),
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                debugPrint("abc");
-                                var client = http.Client();
-                                try {
-                                  var res = await client.get(Uri.parse(
-                                      'http://10.124.7.242:8080/information'));
-                                  jsonEncode(res.body);
-                                  debugPrint(res.body);
-                                } catch (err) {
-                                  debugPrint("err: $err");
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        FadeAnimation(
+                          delay: 1,
+                          child: Container(
+                            width: 300,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12.0),
+                              color: selected == FormData.Email
+                                  ? enabled
+                                  : backgroundColor,
+                            ),
+                            padding: const EdgeInsets.all(5.0),
+                            child: TextField(
+                              controller: emailController,
+                              onTap: () {
+                                setState(() {
+                                  selected = FormData.Email;
+                                });
+                              },
+                              decoration: InputDecoration(
+                                enabledBorder: InputBorder.none,
+                                border: InputBorder.none,
+                                prefixIcon: Icon(
+                                  Icons.email_outlined,
+                                  color: selected == FormData.Email
+                                      ? enabledtxt
+                                      : deaible,
+                                  size: 20,
+                                ),
+                                hintText: 'Email',
+                                hintStyle: TextStyle(
+                                    color: selected == FormData.Email
+                                        ? enabledtxt
+                                        : deaible,
+                                    fontSize: 12),
+                              ),
+                              textAlignVertical: TextAlignVertical.center,
+                              style: TextStyle(
+                                  color: selected == FormData.Email
+                                      ? enabledtxt
+                                      : deaible,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        FadeAnimation(
+                          delay: 1,
+                          child: Container(
+                            width: 300,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12.0),
+                              color: selected == FormData.Birthday
+                                  ? enabled
+                                  : backgroundColor,
+                            ),
+                            padding: const EdgeInsets.all(5.0),
+                            child: TextField(
+                              controller: birthdayController,
+                              onTap: () async {
+                                setState(() {
+                                  selected = FormData.Birthday;
+                                });
+                                DateTime? pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime(
+                                        1900), //DateTime.now() - not to allow to choose before today.
+                                    lastDate: DateTime(2100));
+
+                                if (pickedDate != null) {
+                                  debugPrint(pickedDate
+                                      .toString()); //pickedDate output format => 2021-03-10 00:00:00.000
+                                  String formattedDate =
+                                      DateFormat('dd/MM/yyyy')
+                                          .format(pickedDate);
+                                  debugPrint(formattedDate.toString());
+
+                                  setState(() {
+                                    birthdayController.text = formattedDate;
+                                  });
+                                } else {
+                                  debugPrint("Date is not selected");
                                 }
                               },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xff007CFF),
-                                shape: const RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10))),
-                              ),
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.only(top: 13, bottom: 13),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Text("Lưu",
-                                        style: TextStyle(color: Colors.white))
-                                  ],
+                              decoration: InputDecoration(
+                                enabledBorder: InputBorder.none,
+                                border: InputBorder.none,
+                                prefixIcon: Icon(
+                                  Icons.calendar_month_outlined,
+                                  color: selected == FormData.Birthday
+                                      ? enabledtxt
+                                      : deaible,
+                                  size: 20,
                                 ),
+                                hintText: 'Birthday',
+                                hintStyle: TextStyle(
+                                    color: selected == FormData.Birthday
+                                        ? enabledtxt
+                                        : deaible,
+                                    fontSize: 12),
+                              ),
+                              textAlignVertical: TextAlignVertical.center,
+                              style: TextStyle(
+                                  color: selected == FormData.Birthday
+                                      ? enabledtxt
+                                      : deaible,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        const SizedBox(
+                          height: 25,
+                        ),
+                        FadeAnimation(
+                          delay: 1,
+                          child: TextButton(
+                            onPressed: () {},
+                            style: TextButton.styleFrom(
+                                backgroundColor: const Color(0xFF2697FF),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 14.0, horizontal: 80),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12.0))),
+                            child: const Text(
+                              "Lưu",
+                              style: TextStyle(
+                                color: Colors.white,
+                                letterSpacing: 0.5,
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              );
-            }
-          }
-          return const Center(child: CircularProgressIndicator());
-        });
+
+                //End of Center Card
+                //Start of outer card
+                const SizedBox(
+                  height: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ));
   }
 }
