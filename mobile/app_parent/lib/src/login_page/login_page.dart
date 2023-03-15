@@ -25,6 +25,7 @@ class _LoginPageState extends State<LoginPage> {
   Color backgroundColor = const Color(0xFF1F1A30);
   bool isPasswordHidden = true;
   FormData? selected;
+  bool _loading = false;
 
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -49,9 +50,7 @@ class _LoginPageState extends State<LoginPage> {
             fit: BoxFit.cover,
             colorFilter: ColorFilter.mode(
                 HexColor("#fff").withOpacity(0.2), BlendMode.dstATop),
-            image: const NetworkImage(
-              'https://mir-s3-cdn-cf.behance.net/project_modules/fs/01b4bd84253993.5d56acc35e143.jpg',
-            ),
+            image: const AssetImage("assets/img/image-maps.jpg"),
           ),
         ),
         child: Center(
@@ -74,11 +73,14 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         FadeAnimation(
                           delay: 0.8,
-                          child: Image.network(
-                            "https://cdni.iconscout.com/illustration/premium/thumb/job-starting-date-2537382-2146478.png",
-                            width: 100,
-                            height: 100,
-                          ),
+                          child: ClipRRect(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
+                              child: Image.asset(
+                                "assets/img/logo.png",
+                                width: 100,
+                                height: 100,
+                              )),
                         ),
                         const SizedBox(
                           height: 10,
@@ -86,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
                         const FadeAnimation(
                           delay: 1,
                           child: Text(
-                            "Please sign in to continue",
+                            "Vui lòng đăng nhập",
                             style: TextStyle(
                                 color: Colors.white, letterSpacing: 0.5),
                           ),
@@ -190,7 +192,7 @@ class _LoginPageState extends State<LoginPage> {
                                     onPressed: () => setState(() =>
                                         isPasswordHidden = !isPasswordHidden),
                                   ),
-                                  hintText: 'Password',
+                                  hintText: 'Mật khẩu',
                                   hintStyle: TextStyle(
                                       color: selected == FormData.password
                                           ? enabledTxt
@@ -215,6 +217,9 @@ class _LoginPageState extends State<LoginPage> {
                           child: TextButton(
                               onPressed: () async {
                                 try {
+                                  setState(() {
+                                    _loading = true;
+                                  });
                                   final credential = await FirebaseAuth.instance
                                       .signInWithEmailAndPassword(
                                     email: emailController.value.text,
@@ -240,15 +245,21 @@ class _LoginPageState extends State<LoginPage> {
                                   shape: RoundedRectangleBorder(
                                       borderRadius:
                                           BorderRadius.circular(12.0))),
-                              child: const Text(
-                                "Login",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  letterSpacing: 0.5,
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              )),
+                              child: _loading
+                                  ? const SizedBox(
+                                      height: 15,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                      ))
+                                  : const Text(
+                                      "Đăng nhập",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        letterSpacing: 0.5,
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )),
                         ),
                       ],
                     ),
@@ -270,7 +281,7 @@ class _LoginPageState extends State<LoginPage> {
                       //   return ForgotPasswordScreen();
                       // }));
                     }),
-                    child: Text("Can't Log In?",
+                    child: Text("Quên mật khẩu?",
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.9),
                           letterSpacing: 0.5,
@@ -284,7 +295,7 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text("Don't have an account? ",
+                      const Text("Chưa có tài khoản? ",
                           style: TextStyle(
                             color: Colors.grey,
                             letterSpacing: 0.5,
@@ -297,7 +308,7 @@ class _LoginPageState extends State<LoginPage> {
                             return const RegisterPage();
                           }));
                         },
-                        child: Text("Sign up",
+                        child: Text("Đăng ký",
                             style: TextStyle(
                                 color: Colors.white.withOpacity(0.9),
                                 fontWeight: FontWeight.bold,

@@ -1,22 +1,18 @@
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-
-class Profile {
+class User {
   String? fullName;
+  String? email;
   String? phoneNumber;
   String? birthday;
-  String? email;
 
-  Profile({
+  User({
     required this.fullName,
     required this.phoneNumber,
-    required this.birthday,
     required this.email,
   });
 
-  Profile.fromJson(Map<String, dynamic> json) {
-    fullName = json['full_name'];
-    phoneNumber = json['phone_number'];
+  User.fromJson(Map<String, dynamic> json) {
+    fullName = json['fullName'];
+    phoneNumber = json['phoneNumber'];
     birthday = json['birthday'];
     email = json['email'];
   }

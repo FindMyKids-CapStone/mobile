@@ -1,5 +1,5 @@
+import 'package:app_parent/controllers/user_controller/user_controller.dart';
 import 'package:app_parent/src/login_page/login_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:motion_toast/motion_toast.dart';
 
@@ -22,6 +22,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Color error = Colors.red;
   Color backgroundColor = const Color(0xFF1F1A30);
   bool isPasswordHidden = true;
+  bool isRePasswordHidden = true;
 
   FormData? selected;
 
@@ -51,9 +52,7 @@ class _RegisterPageState extends State<RegisterPage> {
             fit: BoxFit.cover,
             colorFilter: ColorFilter.mode(
                 HexColor("#fff").withOpacity(0.2), BlendMode.dstATop),
-            image: const NetworkImage(
-              'https://mir-s3-cdn-cf.behance.net/project_modules/fs/01b4bd84253993.5d56acc35e143.jpg',
-            ),
+            image: const AssetImage("assets/img/image-maps.jpg"),
           ),
         ),
         child: Center(
@@ -76,11 +75,14 @@ class _RegisterPageState extends State<RegisterPage> {
                       children: [
                         FadeAnimation(
                           delay: 0.8,
-                          child: Image.network(
-                            "https://cdni.iconscout.com/illustration/premium/thumb/job-starting-date-2537382-2146478.png",
-                            width: 100,
-                            height: 100,
-                          ),
+                          child: ClipRRect(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
+                              child: Image.asset(
+                                "assets/img/logo.png",
+                                width: 100,
+                                height: 100,
+                              )),
                         ),
                         const SizedBox(
                           height: 10,
@@ -89,7 +91,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           delay: 1,
                           child: Container(
                             child: Text(
-                              "Create your account",
+                              "Tạo tài khoản",
                               style: TextStyle(
                                   color: Colors.white.withOpacity(0.9),
                                   letterSpacing: 0.5),
@@ -128,7 +130,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       : disable,
                                   size: 20,
                                 ),
-                                hintText: 'Full Name',
+                                hintText: 'Họ và tên',
                                 hintStyle: TextStyle(
                                     color: selected == FormData.Name
                                         ? enabledTxt
@@ -177,7 +179,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       : disable,
                                   size: 20,
                                 ),
-                                hintText: 'Phone Number',
+                                hintText: 'Số điện thoại',
                                 hintStyle: TextStyle(
                                     color: selected == FormData.Phone
                                         ? enabledTxt
@@ -293,7 +295,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                     onPressed: () => setState(() =>
                                         isPasswordHidden = !isPasswordHidden),
                                   ),
-                                  hintText: 'Password',
+                                  hintText: 'Mật khẩu',
                                   hintStyle: TextStyle(
                                       color: selected == FormData.password
                                           ? enabledTxt
@@ -342,7 +344,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                     size: 20,
                                   ),
                                   suffixIcon: IconButton(
-                                    icon: isPasswordHidden
+                                    icon: isRePasswordHidden
                                         ? Icon(
                                             Icons.visibility_off,
                                             color: selected ==
@@ -360,16 +362,17 @@ class _RegisterPageState extends State<RegisterPage> {
                                             size: 20,
                                           ),
                                     onPressed: () => setState(() =>
-                                        isPasswordHidden = !isPasswordHidden),
+                                        isRePasswordHidden =
+                                            !isRePasswordHidden),
                                   ),
-                                  hintText: 'Confirm Password',
+                                  hintText: 'Xác nhận lại mật khẩu',
                                   hintStyle: TextStyle(
                                       color:
                                           selected == FormData.ConfirmPassword
                                               ? enabledTxt
                                               : disable,
                                       fontSize: 12)),
-                              obscureText: isPasswordHidden,
+                              obscureText: isRePasswordHidden,
                               textAlignVertical: TextAlignVertical.center,
                               style: TextStyle(
                                   color: selected == FormData.ConfirmPassword
@@ -381,9 +384,8 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                         ),
                         Text(
-                            confirmPasswordController.value.text != "" &&
-                                    passwordController.value.text !=
-                                        confirmPasswordController.value.text
+                            passwordController.value.text !=
+                                    confirmPasswordController.value.text
                                 ? "Mật khẩu không chính xác"
                                 : "",
                             textAlign: TextAlign.right,
@@ -395,14 +397,14 @@ class _RegisterPageState extends State<RegisterPage> {
                           delay: 1,
                           child: TextButton(
                               onPressed: () async {
+                                FocusManager.instance.primaryFocus?.unfocus();
                                 try {
-                                  final credential = await FirebaseAuth.instance
-                                      .createUserWithEmailAndPassword(
-                                    email: emailController.value.text,
-                                    password: passwordController.value.text,
-                                  )
-                                      .whenComplete(
-                                    () {
+                                  await register(
+                                          emailController.value.text,
+                                          passwordController.value.text,
+                                          nameController.value.text)
+                                      .then((value) {
+                                    if (value != null) {
                                       MotionToast.success(
                                         title: const Text("Thành công"),
                                         description: const Text(
@@ -413,10 +415,19 @@ class _RegisterPageState extends State<RegisterPage> {
                                           MaterialPageRoute(builder: (context) {
                                         return const LoginPage();
                                       }));
-                                    },
-                                  );
+                                    } else {
+                                      MotionToast.error(
+                                        title: const Text("Thất bại"),
+                                        description:
+                                            const Text("Đăng ký thất bại"),
+                                      ).show(context);
+                                    }
+                                  });
                                 } catch (e) {
-                                  print(e);
+                                  MotionToast.error(
+                                    title: const Text("Thất bại"),
+                                    description: const Text("Đăng ký thất bại"),
+                                  ).show(context);
                                 }
                               },
                               style: TextButton.styleFrom(
@@ -453,7 +464,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text("If you have an account ",
+                      const Text("Đã có tài khoản? ",
                           style: TextStyle(
                             color: Colors.grey,
                             letterSpacing: 0.5,
@@ -466,7 +477,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             return const LoginPage();
                           }));
                         },
-                        child: Text("Log in",
+                        child: Text("Đăng nhập",
                             style: TextStyle(
                                 color: Colors.white.withOpacity(0.9),
                                 fontWeight: FontWeight.bold,
