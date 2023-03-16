@@ -1,7 +1,30 @@
+import 'dart:async';
+
+import 'package:app_parent/src/map_page/map_page.dart';
 import 'package:flutter/material.dart';
 
-class CodePage extends StatelessWidget {
+class CodePage extends StatefulWidget {
   const CodePage({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _StateCodePage();
+}
+
+class _StateCodePage extends State<CodePage> {
+  late Timer timer;
+
+  void autoPress() {
+    timer = Timer(const Duration(seconds: 2), () {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const MapPage()));
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    autoPress();
+  }
 
   @override
   Widget build(BuildContext context) {

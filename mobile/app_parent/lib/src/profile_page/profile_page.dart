@@ -1,18 +1,37 @@
 import 'package:app_parent/src/core/colors/hex_color.dart';
 import 'package:app_parent/src/core/fade_animation.dart';
+import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 
 // ignore: constant_identifier_names
 enum FormData { Name, Phone, Email, Birthday }
+
+const List<TabItem> items = [
+  TabItem(icon: FontAwesomeIcons.mapLocation),
+  TabItem(icon: FontAwesomeIcons.route),
+  TabItem(icon: FontAwesomeIcons.plus),
+  TabItem(icon: FontAwesomeIcons.microphone),
+  TabItem(icon: FontAwesomeIcons.bars),
+];
 
 class ProfilePage extends StatefulWidget {
   DateTime? birthday;
   String? phone;
   String? name;
   String? email;
+  int selectedIndex;
+  Function setNavBarIndex;
 
-  ProfilePage({super.key, this.birthday, this.email, this.name, this.phone});
+  ProfilePage(
+      {super.key,
+      this.birthday,
+      this.email,
+      this.name,
+      this.phone,
+      required this.selectedIndex,
+      required this.setNavBarIndex});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -415,6 +434,14 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
         ),
+      ),
+      bottomNavigationBar: BottomBarCreative(
+        items: items,
+        backgroundColor: Colors.white,
+        color: Colors.black,
+        colorSelected: Colors.blueAccent,
+        indexSelected: widget.selectedIndex,
+        onTap: (int index) => widget.setNavBarIndex(index),
       ),
     ));
   }

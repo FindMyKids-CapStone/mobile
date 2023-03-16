@@ -1,4 +1,4 @@
-import 'package:app_parent/src/map_page/map_page.dart';
+import 'package:app_parent/src/login_page/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
                     body: Center(child: Text('An error has been occurred'))));
           }
           return const MaterialApp(
-              debugShowCheckedModeBanner: false, home: MapPage());
+              debugShowCheckedModeBanner: false, home: LoginPage());
         });
   }
 }

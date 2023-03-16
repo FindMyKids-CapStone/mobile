@@ -2,6 +2,7 @@ import 'package:app_parent/src/home_page/home_page.dart';
 import 'package:app_parent/src/register_page/register_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:motion_toast/motion_toast.dart';
 
 import '../core/colors/hex_color.dart';
 import '../core/fade_animation.dart';
@@ -217,25 +218,54 @@ class _LoginPageState extends State<LoginPage> {
                           child: TextButton(
                               onPressed: () async {
                                 try {
+                                  FocusManager.instance.primaryFocus?.unfocus();
                                   setState(() {
                                     _loading = true;
                                   });
-                                  final credential = await FirebaseAuth.instance
+                                  FirebaseAuth.instance
                                       .signInWithEmailAndPassword(
                                     email: emailController.value.text,
                                     password: passwordController.value.text,
                                   )
-                                      .whenComplete(
-                                    () {
-                                      Navigator.pop(context);
-                                      Navigator.of(context).push(
-                                          MaterialPageRoute(builder: (context) {
-                                        return const HomePage();
-                                      }));
+                                      .then(
+                                    (res) {
+                                      if (res.user != null) {
+                                        Navigator.pop(context);
+                                        Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                                builder: (context) {
+                                          return const HomePage();
+                                        }));
+                                      } else {
+                                        MotionToast.error(
+                                          title: const Text("Thất bại"),
+                                          description:
+                                              const Text("Đăng nhập thất bại"),
+                                        ).show(context);
+                                        // setState(() {
+                                        //   _loading = false;
+                                        // });
+                                      }
                                     },
-                                  );
+                                  ).catchError((onError) {
+                                    MotionToast.error(
+                                      title: const Text("Thất bại"),
+                                      description:
+                                          const Text("Đăng nhập thất bại"),
+                                    ).show(context);
+                                    // setState(() {
+                                    //   _loading = false;
+                                    // });
+                                  });
                                 } catch (e) {
-                                  print(e);
+                                  MotionToast.error(
+                                    title: const Text("Thất bại"),
+                                    description:
+                                        const Text("Đăng nhập thất bại"),
+                                  ).show(context);
+                                  // setState(() {
+                                  //   _loading = false;
+                                  // });
                                 }
                               },
                               style: TextButton.styleFrom(
@@ -247,7 +277,8 @@ class _LoginPageState extends State<LoginPage> {
                                           BorderRadius.circular(12.0))),
                               child: _loading
                                   ? const SizedBox(
-                                      height: 15,
+                                      height: 20,
+                                      width: 20,
                                       child: CircularProgressIndicator(
                                         color: Colors.white,
                                       ))
