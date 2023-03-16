@@ -1,3 +1,4 @@
+import 'package:app_parent/src/forgot_password_page/forgot_password_page.dart';
 import 'package:app_parent/src/home_page/home_page.dart';
 import 'package:app_parent/src/register_page/register_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -217,56 +218,47 @@ class _LoginPageState extends State<LoginPage> {
                           delay: 1,
                           child: TextButton(
                               onPressed: () async {
-                                try {
-                                  FocusManager.instance.primaryFocus?.unfocus();
-                                  setState(() {
-                                    _loading = true;
-                                  });
-                                  FirebaseAuth.instance
-                                      .signInWithEmailAndPassword(
-                                    email: emailController.value.text,
-                                    password: passwordController.value.text,
-                                  )
-                                      .then(
-                                    (res) {
-                                      if (res.user != null) {
-                                        Navigator.pop(context);
-                                        Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                                builder: (context) {
-                                          return const HomePage();
-                                        }));
-                                      } else {
-                                        MotionToast.error(
-                                          title: const Text("Thất bại"),
-                                          description:
-                                              const Text("Đăng nhập thất bại"),
-                                        ).show(context);
-                                        // setState(() {
-                                        //   _loading = false;
-                                        // });
-                                      }
-                                    },
-                                  ).catchError((onError) {
-                                    MotionToast.error(
-                                      title: const Text("Thất bại"),
-                                      description:
-                                          const Text("Đăng nhập thất bại"),
-                                    ).show(context);
-                                    // setState(() {
-                                    //   _loading = false;
-                                    // });
-                                  });
-                                } catch (e) {
+                                FocusManager.instance.primaryFocus?.unfocus();
+                                setState(() {
+                                  _loading = true;
+                                });
+                                FirebaseAuth.instance
+                                    .signInWithEmailAndPassword(
+                                  email: emailController.value.text,
+                                  password: passwordController.value.text,
+                                )
+                                    .then((res) {
+                                  if (res.user != null) {
+                                    Navigator.pop(context);
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(builder: (context) {
+                                      return const HomePage();
+                                    }));
+                                  }
+                                }).catchError((onError) {
+                                  FirebaseAuthException error = onError;
+                                  print(error.message);
+                                  var textError = "Đăng nhập thất bại";
+                                  switch (error.message) {
+                                    case "Given String is empty or null":
+                                      textError =
+                                          "Vui lòng nhập email/password";
+                                      break;
+                                    case "There is no user record corresponding to this identifier. The user may have been deleted.":
+                                      textError = "Email không tồn tại";
+                                      break;
+                                    case "The password is invalid or the user does not have a password.":
+                                      textError = "Password không chính xác";
+                                      break;
+                                  }
                                   MotionToast.error(
                                     title: const Text("Thất bại"),
-                                    description:
-                                        const Text("Đăng nhập thất bại"),
+                                    description: Text(textError),
                                   ).show(context);
-                                  // setState(() {
-                                  //   _loading = false;
-                                  // });
-                                }
+                                  setState(() {
+                                    _loading = false;
+                                  });
+                                });
                               },
                               style: TextButton.styleFrom(
                                   backgroundColor: const Color(0xFF2697FF),
@@ -306,11 +298,11 @@ class _LoginPageState extends State<LoginPage> {
                   delay: 1,
                   child: GestureDetector(
                     onTap: (() {
-                      // Navigator.pop(context);
-                      // Navigator.of(context)
-                      //     .push(MaterialPageRoute(builder: (context) {
-                      //   return ForgotPasswordScreen();
-                      // }));
+                      Navigator.pop(context);
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(builder: (context) {
+                        return const ForgotPasswordPage();
+                      }));
                     }),
                     child: Text("Quên mật khẩu?",
                         style: TextStyle(
