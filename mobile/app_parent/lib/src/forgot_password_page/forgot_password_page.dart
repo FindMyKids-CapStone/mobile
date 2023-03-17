@@ -69,11 +69,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       children: [
                         FadeAnimation(
                           delay: 0.8,
-                          child: Image.network(
-                            "https://cdni.iconscout.com/illustration/premium/thumb/job-starting-date-2537382-2146478.png",
-                            width: 100,
-                            height: 100,
-                          ),
+                          child: ClipRRect(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
+                              child: Image.asset(
+                                "assets/img/logo.png",
+                                width: 100,
+                                height: 100,
+                              )),
                         ),
                         const SizedBox(
                           height: 10,

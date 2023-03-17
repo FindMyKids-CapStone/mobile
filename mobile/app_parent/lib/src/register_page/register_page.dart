@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app_parent/controllers/user_controller/user_controller.dart';
 import 'package:app_parent/src/login_page/login_page.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +25,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Color backgroundColor = const Color(0xFF1F1A30);
   bool isPasswordHidden = true;
   bool isRePasswordHidden = true;
+  bool _loading = false;
 
   FormData? selected;
 
@@ -399,6 +402,9 @@ class _RegisterPageState extends State<RegisterPage> {
                               onPressed: () async {
                                 FocusManager.instance.primaryFocus?.unfocus();
                                 try {
+                                  setState(() {
+                                    _loading = true;
+                                  });
                                   await register(
                                           emailController.value.text,
                                           passwordController.value.text,
@@ -410,12 +416,18 @@ class _RegisterPageState extends State<RegisterPage> {
                                         description: const Text(
                                             "Bạn đã đăng ký thành công vui lòng đăng nhập"),
                                       ).show(context);
-                                      Navigator.pop(context);
-                                      Navigator.of(context).push(
-                                          MaterialPageRoute(builder: (context) {
-                                        return const LoginPage();
-                                      }));
+                                      Timer(const Duration(seconds: 1), () {
+                                        Navigator.pop(context);
+                                        Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                                builder: (context) {
+                                          return const LoginPage();
+                                        }));
+                                      });
                                     } else {
+                                      setState(() {
+                                        _loading = false;
+                                      });
                                       MotionToast.error(
                                         title: const Text("Thất bại"),
                                         description:
@@ -424,6 +436,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                     }
                                   });
                                 } catch (e) {
+                                  setState(() {
+                                    _loading = false;
+                                  });
                                   MotionToast.error(
                                     title: const Text("Thất bại"),
                                     description: const Text("Đăng ký thất bại"),
@@ -437,15 +452,22 @@ class _RegisterPageState extends State<RegisterPage> {
                                   shape: RoundedRectangleBorder(
                                       borderRadius:
                                           BorderRadius.circular(12.0))),
-                              child: const Text(
-                                "Đăng ký",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  letterSpacing: 0.5,
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              )),
+                              child: _loading
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                      ))
+                                  : const Text(
+                                      "Đăng ký",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        letterSpacing: 0.5,
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )),
                         ),
                       ],
                     ),

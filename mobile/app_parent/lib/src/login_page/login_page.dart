@@ -237,7 +237,6 @@ class _LoginPageState extends State<LoginPage> {
                                   }
                                 }).catchError((onError) {
                                   FirebaseAuthException error = onError;
-                                  print(error.message);
                                   var textError = "Đăng nhập thất bại";
                                   switch (error.message) {
                                     case "Given String is empty or null":
