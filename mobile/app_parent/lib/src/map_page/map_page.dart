@@ -1,14 +1,14 @@
+import 'dart:async';
+
 import 'package:app_parent/src/profile_page/profile_page.dart';
 import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 // import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:location/location.dart';
 
 const List<TabItem> items = [
   TabItem(icon: FontAwesomeIcons.mapLocation),
@@ -16,6 +16,27 @@ const List<TabItem> items = [
   TabItem(icon: FontAwesomeIcons.plus),
   TabItem(icon: FontAwesomeIcons.microphone),
   TabItem(icon: FontAwesomeIcons.bars),
+];
+
+List<Marker> _markers = [
+  Marker(
+    width: 80,
+    height: 80,
+    point: LatLng(10.75, 106.682613),
+    builder: (ctx) => const FaIcon(FontAwesomeIcons.locationPin),
+  ),
+  Marker(
+    width: 80,
+    height: 80,
+    point: LatLng(10.76, 106.682626),
+    builder: (ctx) => const FaIcon(FontAwesomeIcons.locationPin),
+  ),
+  Marker(
+    width: 80,
+    height: 80,
+    point: LatLng(10.74, 106.682650),
+    builder: (ctx) => const FaIcon(FontAwesomeIcons.locationPin),
+  ),
 ];
 
 class MapPage extends StatefulWidget {
@@ -26,121 +47,48 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
+  Marker? _marker;
+  late final Timer _timer;
+  int _markerIndex = 0;
   int _selectedIndex = 0;
-  LocationData? _currentLocation;
-  late final MapController _mapController;
   final _controller = ValueNotifier<bool>(false);
-
-  bool _liveUpdate = false;
-  bool _permission = false;
-
-  String? _serviceError = '';
-
-  int interActiveFlags = InteractiveFlag.pinchZoom |
-      InteractiveFlag.drag |
-      InteractiveFlag.doubleTapZoom;
-
-  final Location _locationService = Location();
 
   @override
   void initState() {
     super.initState();
-    _mapController = MapController();
-    initLocationService();
+    _marker = _markers[_markerIndex];
+    _timer = Timer.periodic(const Duration(seconds: 2), (_) {
+      setState(() {
+        _marker = _markers[_markerIndex];
+        _markerIndex = (_markerIndex + 1) % _markers.length;
+      });
+    });
   }
 
-  void initLocationService() async {
-    await _locationService.changeSettings(
-      accuracy: LocationAccuracy.high,
-      interval: 1000,
-    );
-
-    LocationData? location;
-    bool serviceEnabled;
-    bool serviceRequestResult;
-
-    try {
-      serviceEnabled = await _locationService.serviceEnabled();
-
-      if (serviceEnabled) {
-        final permission = await _locationService.requestPermission();
-        _permission = permission == PermissionStatus.granted;
-
-        if (_permission) {
-          location = await _locationService.getLocation();
-          _currentLocation = location;
-          _locationService.onLocationChanged
-              .listen((LocationData result) async {
-            if (mounted) {
-              setState(() {
-                _currentLocation = result;
-
-                // If Live Update is enabled, move map center
-                if (_liveUpdate) {
-                  _mapController.move(
-                      LatLng(_currentLocation!.latitude!,
-                          _currentLocation!.longitude!),
-                      _mapController.zoom);
-                }
-              });
-            }
-          });
-        }
-      } else {
-        serviceRequestResult = await _locationService.requestService();
-        if (serviceRequestResult) {
-          initLocationService();
-          return;
-        }
-      }
-    } on PlatformException catch (e) {
-      debugPrint(e.toString());
-      if (e.code == 'PERMISSION_DENIED') {
-        _serviceError = e.message;
-      } else if (e.code == 'SERVICE_STATUS_ERROR') {
-        _serviceError = e.message;
-      }
-      location = null;
-    }
+  @override
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
-    LatLng currentLatLng;
-
-    // Until currentLocation is initially updated, Widget can locate to 0, 0
-    // by default or store previous location value to show.
-    if (_currentLocation != null) {
-      currentLatLng =
-          LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!);
-    } else {
-      currentLatLng = LatLng(0, 0);
-    }
-
-    final markers = <Marker>[
-      Marker(
-          width: 80,
-          height: 80,
-          point: currentLatLng,
-          builder: (ctx) => const FaIcon(FontAwesomeIcons.locationPin)),
-    ];
-
     return _selectedIndex != 4
         ? Scaffold(
             extendBody: true,
             body: FlutterMap(
-              mapController: _mapController,
               options: MapOptions(
-                  center:
-                      LatLng(currentLatLng.latitude, currentLatLng.longitude),
-                  zoom: 5,
-                  interactiveFlags: interActiveFlags),
+                  center: LatLng(10.762689, 106.682613),
+                  zoom: 18,
+                  interactiveFlags: InteractiveFlag.drag |
+                      InteractiveFlag.doubleTapZoom |
+                      InteractiveFlag.pinchZoom),
               children: [
                 TileLayer(
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                 ),
-                MarkerLayer(markers: markers),
+                MarkerLayer(markers: [_marker!]),
               ],
             ),
             floatingActionButton: Builder(builder: (BuildContext context) {
@@ -165,25 +113,9 @@ class _MapPageState extends State<MapPage> {
                     )),
                 const SizedBox(height: 5),
                 FloatingActionButton(
-                  heroTag: "btn3",
-                  onPressed: () {
-                    setState(() {
-                      _liveUpdate = !_liveUpdate;
-
-                      if (_liveUpdate) {
-                        interActiveFlags = InteractiveFlag.pinchZoom |
-                            InteractiveFlag.doubleTapZoom;
-                      } else {
-                        interActiveFlags = InteractiveFlag.pinchZoom |
-                            InteractiveFlag.drag |
-                            InteractiveFlag.doubleTapZoom;
-                      }
-                    });
-                  },
-                  child: _liveUpdate
-                      ? const Icon(Icons.location_on)
-                      : const Icon(Icons.location_off),
-                )
+                    heroTag: "btn3",
+                    onPressed: () {},
+                    child: const Icon(Icons.location_on))
               ]);
             }),
             bottomNavigationBar:

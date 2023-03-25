@@ -1,10 +1,10 @@
 import 'package:app_parent/src/forgot_password_page/forgot_password_page.dart';
-import 'package:app_parent/src/home_page/home_page.dart';
+import 'package:app_parent/src/profile_page/update_profile_page.dart';
 import 'package:app_parent/src/register_page/register_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:motion_toast/motion_toast.dart';
+import 'package:get/get.dart';
 
+import '../../controllers/auth_controller.dart';
 import '../core/colors/hex_color.dart';
 import '../core/fade_animation.dart';
 
@@ -31,6 +31,8 @@ class _LoginPageState extends State<LoginPage> {
 
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+
+  final AuthController _authController = Get.put(AuthController());
 
   @override
   Widget build(BuildContext context) {
@@ -222,42 +224,14 @@ class _LoginPageState extends State<LoginPage> {
                                 setState(() {
                                   _loading = true;
                                 });
-                                FirebaseAuth.instance
-                                    .signInWithEmailAndPassword(
-                                  email: emailController.value.text,
-                                  password: passwordController.value.text,
-                                )
-                                    .then((res) {
-                                  if (res.user != null) {
-                                    Navigator.pop(context);
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(builder: (context) {
-                                      return const HomePage();
-                                    }));
-                                  }
-                                }).catchError((onError) {
-                                  FirebaseAuthException error = onError;
-                                  var textError = "Đăng nhập thất bại";
-                                  switch (error.message) {
-                                    case "Given String is empty or null":
-                                      textError =
-                                          "Vui lòng nhập email/password";
-                                      break;
-                                    case "There is no user record corresponding to this identifier. The user may have been deleted.":
-                                      textError = "Email không tồn tại";
-                                      break;
-                                    case "The password is invalid or the user does not have a password.":
-                                      textError = "Password không chính xác";
-                                      break;
-                                  }
-                                  MotionToast.error(
-                                    title: const Text("Thất bại"),
-                                    description: Text(textError),
-                                  ).show(context);
-                                  setState(() {
-                                    _loading = false;
-                                  });
-                                });
+                                await _authController.login(
+                                    email: emailController.value.text,
+                                    password: passwordController.value.text,
+                                    context: context);
+                                if (_authController.currentUser != null) {
+                                  print("alo");
+                                  Get.to(() => const UpdateProfilePage());
+                                }
                               },
                               style: TextButton.styleFrom(
                                   backgroundColor: const Color(0xFF2697FF),

@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:app_parent/controllers/user_controller/user_controller.dart';
 import 'package:app_parent/src/login_page/login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:motion_toast/motion_toast.dart';
 
@@ -98,104 +98,6 @@ class _RegisterPageState extends State<RegisterPage> {
                               style: TextStyle(
                                   color: Colors.white.withOpacity(0.9),
                                   letterSpacing: 0.5),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        FadeAnimation(
-                          delay: 1,
-                          child: Container(
-                            width: 300,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12.0),
-                              color: selected == FormData.Name
-                                  ? enabled
-                                  : backgroundColor,
-                            ),
-                            padding: const EdgeInsets.all(5.0),
-                            child: TextField(
-                              controller: nameController,
-                              onTap: () {
-                                setState(() {
-                                  selected = FormData.Name;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                enabledBorder: InputBorder.none,
-                                border: InputBorder.none,
-                                prefixIcon: Icon(
-                                  Icons.title,
-                                  color: selected == FormData.Name
-                                      ? enabledTxt
-                                      : disable,
-                                  size: 20,
-                                ),
-                                hintText: 'Họ và tên',
-                                hintStyle: TextStyle(
-                                    color: selected == FormData.Name
-                                        ? enabledTxt
-                                        : disable,
-                                    fontSize: 12),
-                              ),
-                              textAlignVertical: TextAlignVertical.center,
-                              style: TextStyle(
-                                  color: selected == FormData.Name
-                                      ? enabledTxt
-                                      : disable,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        FadeAnimation(
-                          delay: 1,
-                          child: Container(
-                            width: 300,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12.0),
-                              color: selected == FormData.Phone
-                                  ? enabled
-                                  : backgroundColor,
-                            ),
-                            padding: const EdgeInsets.all(5.0),
-                            child: TextField(
-                              controller: phoneController,
-                              onTap: () {
-                                setState(() {
-                                  selected = FormData.Phone;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                enabledBorder: InputBorder.none,
-                                border: InputBorder.none,
-                                prefixIcon: Icon(
-                                  Icons.phone_android_rounded,
-                                  color: selected == FormData.Phone
-                                      ? enabledTxt
-                                      : disable,
-                                  size: 20,
-                                ),
-                                hintText: 'Số điện thoại',
-                                hintStyle: TextStyle(
-                                    color: selected == FormData.Phone
-                                        ? enabledTxt
-                                        : disable,
-                                    fontSize: 12),
-                              ),
-                              textAlignVertical: TextAlignVertical.center,
-                              style: TextStyle(
-                                  color: selected == FormData.Phone
-                                      ? enabledTxt
-                                      : disable,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12),
                             ),
                           ),
                         ),
@@ -405,10 +307,11 @@ class _RegisterPageState extends State<RegisterPage> {
                                   setState(() {
                                     _loading = true;
                                   });
-                                  await register(
-                                          emailController.value.text,
-                                          passwordController.value.text,
-                                          nameController.value.text)
+                                  await FirebaseAuth.instance
+                                      .createUserWithEmailAndPassword(
+                                          email: emailController.value.text,
+                                          password:
+                                              passwordController.value.text)
                                       .then((value) {
                                     if (value != null) {
                                       MotionToast.success(
@@ -416,7 +319,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                         description: const Text(
                                             "Bạn đã đăng ký thành công vui lòng đăng nhập"),
                                       ).show(context);
-                                      Timer(const Duration(seconds: 1), () {
+                                      Timer(const Duration(seconds: 2), () {
                                         Navigator.pop(context);
                                         Navigator.of(context).push(
                                             MaterialPageRoute(

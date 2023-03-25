@@ -1,9 +1,10 @@
-import 'package:app_parent/src/core/colors/hex_color.dart';
 import 'package:app_parent/src/core/fade_animation.dart';
 import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+
+import '../core/colors/hex_color.dart';
 
 // ignore: constant_identifier_names
 enum FormData { Name, Phone, Email, Birthday }
@@ -16,28 +17,14 @@ const List<TabItem> items = [
   TabItem(icon: FontAwesomeIcons.bars),
 ];
 
-class ProfilePage extends StatefulWidget {
-  DateTime? birthday;
-  String? phone;
-  String? name;
-  String? email;
-  int selectedIndex;
-  Function setNavBarIndex;
-
-  ProfilePage(
-      {super.key,
-      this.birthday,
-      this.email,
-      this.name,
-      this.phone,
-      required this.selectedIndex,
-      required this.setNavBarIndex});
+class UpdateProfilePage extends StatefulWidget {
+  const UpdateProfilePage({super.key});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<UpdateProfilePage> createState() => _UpdateProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _UpdateProfilePageState extends State<UpdateProfilePage> {
   Color enabled = const Color.fromARGB(255, 63, 56, 89);
   Color enabledtxt = Colors.white;
   Color deaible = Colors.grey;
@@ -58,10 +45,18 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        child: Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          title: const Text("Cập nhật thông tin"),
+          centerTitle: true,
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: Container(
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             stops: const [0.1, 0.4, 0.7, 0.9],
@@ -71,32 +66,13 @@ class _ProfilePageState extends State<ProfilePage> {
               HexColor("#08418e"),
               HexColor("#08418e")
             ],
-          ),
-          image: DecorationImage(
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-                HexColor("#fff").withOpacity(0.2), BlendMode.dstATop),
-            image: const NetworkImage(
-              'https://mir-s3-cdn-cf.behance.net/project_modules/fs/01b4bd84253993.5d56acc35e143.jpg',
-            ),
-          ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Card(
-                  elevation: 5,
-                  color:
-                      const Color.fromARGB(255, 171, 211, 250).withOpacity(0.4),
-                  child: Container(
-                    width: 400,
-                    padding: const EdgeInsets.all(40.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
+          )),
+          child: Center(
+            child: SingleChildScrollView(
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const FadeAnimation(
@@ -349,15 +325,15 @@ class _ProfilePageState extends State<ProfilePage> {
                           child: TextButton(
                             onPressed: () {},
                             style: TextButton.styleFrom(
-                                backgroundColor: const Color(0xFF2697FF),
+                                backgroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
-                                    vertical: 14.0, horizontal: 80),
+                                    vertical: 10.0, horizontal: 80),
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12.0))),
+                                    borderRadius: BorderRadius.circular(20.0))),
                             child: const Text(
                               "Lưu",
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Colors.black87,
                                 letterSpacing: 0.5,
                                 fontSize: 16.0,
                                 fontWeight: FontWeight.bold,
@@ -367,27 +343,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ],
                     ),
-                  ),
-                ),
-
-                //End of Center Card
-                //Start of outer card
-                const SizedBox(
-                  height: 20,
-                ),
-              ],
+                  ]),
             ),
           ),
         ),
       ),
-      bottomNavigationBar: BottomBarCreative(
-        items: items,
-        backgroundColor: Colors.white,
-        color: Colors.black,
-        colorSelected: Colors.blueAccent,
-        indexSelected: widget.selectedIndex,
-        onTap: (int index) => widget.setNavBarIndex(index),
-      ),
-    ));
+    );
   }
 }

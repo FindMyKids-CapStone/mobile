@@ -1,34 +1,30 @@
+import 'package:app_parent/config/app_key.dart';
+import 'package:app_parent/service/graphql.dart';
+import 'package:app_parent/service/spref.dart';
 import 'package:app_parent/src/login_page/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:get/get.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
 
-  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+  final String _token = SPref.instance.get(AppKey.authorization);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _initialization,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const MaterialApp(
-                home: Scaffold(
-                    body: Center(child: Text('App is being initialized'))));
-          } else if (snapshot.hasError) {
-            return const MaterialApp(
-                home: Scaffold(
-                    body: Center(child: Text('An error has been occurred'))));
-          }
-          return const MaterialApp(
-              debugShowCheckedModeBanner: false, home: LoginPage());
-        });
+    return GraphQLProvider(
+        client: GraphQLHelper.initializeClient(_token),
+        child: const GetMaterialApp(
+            debugShowCheckedModeBanner: false, home: LoginPage()));
   }
 }
