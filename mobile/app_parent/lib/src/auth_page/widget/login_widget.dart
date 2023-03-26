@@ -1,26 +1,27 @@
 import 'package:app_parent/src/forgot_password_page/forgot_password_page.dart';
-import 'package:app_parent/src/profile_page/update_profile_page.dart';
-import 'package:app_parent/src/register_page/register_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../controllers/auth_controller.dart';
-import '../core/colors/hex_color.dart';
-import '../core/fade_animation.dart';
+import '../../../controllers/auth_controller.dart';
+import '../../core/colors/hex_color.dart';
+import '../../core/fade_animation.dart';
 
 enum FormData {
   Email,
   password,
 }
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class LoginWidget extends StatefulWidget {
+  final VoidCallback onClickedRegister;
+
+  const LoginWidget({super.key, required this.onClickedRegister});
 
   @override
-  State<StatefulWidget> createState() => _LoginPageState();
+  State<StatefulWidget> createState() => _LoginWidgetState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginWidgetState extends State<LoginWidget> {
   Color enabled = const Color.fromARGB(255, 63, 56, 89);
   Color enabledTxt = Colors.white;
   Color disable = Colors.grey;
@@ -29,10 +30,17 @@ class _LoginPageState extends State<LoginPage> {
   FormData? selected;
   bool _loading = false;
 
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   final AuthController _authController = Get.put(AuthController());
+
+  @override
+  void dispose() {
+    super.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,48 +110,44 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         FadeAnimation(
                           delay: 1,
-                          child: Container(
-                            width: 300,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12.0),
-                              color: selected == FormData.Email
+                          child: TextField(
+                            controller: emailController,
+                            onTap: () {
+                              setState(() {
+                                selected = FormData.Email;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(13.0),
+                                  borderSide: const BorderSide(width: 0)),
+                              filled: true,
+                              fillColor: selected == FormData.Email
                                   ? enabled
                                   : backgroundColor,
-                            ),
-                            padding: const EdgeInsets.all(5.0),
-                            child: TextField(
-                              controller: emailController,
-                              onTap: () {
-                                setState(() {
-                                  selected = FormData.Email;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                enabledBorder: InputBorder.none,
-                                border: InputBorder.none,
-                                prefixIcon: Icon(
-                                  Icons.email_outlined,
-                                  color: selected == FormData.Email
-                                      ? enabledTxt
-                                      : disable,
-                                  size: 20,
-                                ),
-                                hintText: 'Email',
-                                hintStyle: TextStyle(
-                                    color: selected == FormData.Email
-                                        ? enabledTxt
-                                        : disable,
-                                    fontSize: 12),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(13.0)),
+                              prefixIcon: Icon(
+                                Icons.email_outlined,
+                                color: selected == FormData.Email
+                                    ? enabledTxt
+                                    : disable,
+                                size: 20,
                               ),
-                              textAlignVertical: TextAlignVertical.center,
-                              style: TextStyle(
+                              hintText: 'Email',
+                              hintStyle: TextStyle(
                                   color: selected == FormData.Email
                                       ? enabledTxt
                                       : disable,
-                                  fontWeight: FontWeight.bold,
                                   fontSize: 12),
                             ),
+                            textAlignVertical: TextAlignVertical.center,
+                            style: TextStyle(
+                                color: selected == FormData.Email
+                                    ? enabledTxt
+                                    : disable,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12),
                           ),
                         ),
                         const SizedBox(
@@ -151,66 +155,63 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         FadeAnimation(
                           delay: 1,
-                          child: Container(
-                            width: 300,
-                            height: 40,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12.0),
-                                color: selected == FormData.password
+                          child: TextField(
+                            controller: passwordController,
+                            onTap: () {
+                              setState(() {
+                                selected = FormData.password;
+                              });
+                            },
+                            decoration: InputDecoration(
+                                focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(13.0),
+                                    borderSide: const BorderSide(width: 0)),
+                                filled: true,
+                                fillColor: selected == FormData.password
                                     ? enabled
-                                    : backgroundColor),
-                            padding: const EdgeInsets.all(5.0),
-                            child: TextField(
-                              controller: passwordController,
-                              onTap: () {
-                                setState(() {
-                                  selected = FormData.password;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                  enabledBorder: InputBorder.none,
-                                  border: InputBorder.none,
-                                  prefixIcon: Icon(
-                                    Icons.lock_open_outlined,
-                                    color: selected == FormData.password
-                                        ? enabledTxt
-                                        : disable,
-                                    size: 20,
-                                  ),
-                                  suffixIcon: IconButton(
-                                    icon: isPasswordHidden
-                                        ? Icon(
-                                            Icons.visibility_off,
-                                            color: selected == FormData.password
-                                                ? enabledTxt
-                                                : disable,
-                                            size: 20,
-                                          )
-                                        : Icon(
-                                            Icons.visibility,
-                                            color: selected == FormData.password
-                                                ? enabledTxt
-                                                : disable,
-                                            size: 20,
-                                          ),
-                                    onPressed: () => setState(() =>
-                                        isPasswordHidden = !isPasswordHidden),
-                                  ),
-                                  hintText: 'Mật khẩu',
-                                  hintStyle: TextStyle(
-                                      color: selected == FormData.password
-                                          ? enabledTxt
-                                          : disable,
-                                      fontSize: 12)),
-                              obscureText: isPasswordHidden,
-                              textAlignVertical: TextAlignVertical.center,
-                              style: TextStyle(
+                                    : backgroundColor,
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(13.0)),
+                                prefixIcon: Icon(
+                                  Icons.lock_open_outlined,
                                   color: selected == FormData.password
                                       ? enabledTxt
                                       : disable,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12),
-                            ),
+                                  size: 20,
+                                ),
+                                suffixIcon: IconButton(
+                                  icon: isPasswordHidden
+                                      ? Icon(
+                                          Icons.visibility_off,
+                                          color: selected == FormData.password
+                                              ? enabledTxt
+                                              : disable,
+                                          size: 20,
+                                        )
+                                      : Icon(
+                                          Icons.visibility,
+                                          color: selected == FormData.password
+                                              ? enabledTxt
+                                              : disable,
+                                          size: 20,
+                                        ),
+                                  onPressed: () => setState(() =>
+                                      isPasswordHidden = !isPasswordHidden),
+                                ),
+                                hintText: 'Mật khẩu',
+                                hintStyle: TextStyle(
+                                    color: selected == FormData.password
+                                        ? enabledTxt
+                                        : disable,
+                                    fontSize: 12)),
+                            obscureText: isPasswordHidden,
+                            textAlignVertical: TextAlignVertical.center,
+                            style: TextStyle(
+                                color: selected == FormData.password
+                                    ? enabledTxt
+                                    : disable,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12),
                           ),
                         ),
                         const SizedBox(
@@ -224,13 +225,14 @@ class _LoginPageState extends State<LoginPage> {
                                 setState(() {
                                   _loading = true;
                                 });
-                                await _authController.login(
-                                    email: emailController.value.text,
-                                    password: passwordController.value.text,
-                                    context: context);
-                                if (_authController.currentUser != null) {
-                                  print("alo");
-                                  Get.to(() => const UpdateProfilePage());
+                                try {
+                                  await FirebaseAuth.instance
+                                      .signInWithEmailAndPassword(
+                                          email: emailController.text.trim(),
+                                          password:
+                                              passwordController.text.trim());
+                                } on FirebaseAuthException catch (e) {
+                                  print("Error Login, $e");
                                 }
                               },
                               style: TextButton.styleFrom(
@@ -297,13 +299,7 @@ class _LoginPageState extends State<LoginPage> {
                             letterSpacing: 0.5,
                           )),
                       GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.of(context)
-                              .push(MaterialPageRoute(builder: (context) {
-                            return const RegisterPage();
-                          }));
-                        },
+                        onTap: widget.onClickedRegister,
                         child: Text("Đăng ký",
                             style: TextStyle(
                                 color: Colors.white.withOpacity(0.9),

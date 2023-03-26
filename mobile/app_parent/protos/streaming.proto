@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+option java_multiple_files = false;
+option java_package = "vn.phuchien";
+
+message Location {
+  double latitude = 1;
+  double longitude = 2;
+}
+
+message GetLocationRequest {
+  repeated string user_id = 1;
+}
+
+message GetLocationResponse {
+  map<string, Location> location = 1;
+}
+
+message SendLocationRequest {
+  string user_id = 1;
+  Location location = 2;
+}
+
+message SendLocationResponse {
+  string user_id = 1;
+  bool status = 2;
+}
+
+message HelloRequest {
+
+}
+
+message HelloResponse {
+  string response = 1;
+}
+
+service LocationStreaming {
+  rpc SendLocation (SendLocationRequest) returns (SendLocationResponse) {}
+  rpc GetLocation (GetLocationRequest) returns (GetLocationResponse) {}
+  rpc Hello (HelloRequest) returns (HelloResponse) {}
+}
