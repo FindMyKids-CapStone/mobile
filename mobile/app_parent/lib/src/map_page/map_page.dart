@@ -1,42 +1,16 @@
 import 'dart:async';
 
-import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
+import 'package:app_parent/src/generated/streaming.pbgrpc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 // import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../core/colors/hex_color.dart';
-
-const List<TabItem> items = [
-  TabItem(icon: FontAwesomeIcons.mapLocation),
-  TabItem(icon: FontAwesomeIcons.route),
-  TabItem(icon: FontAwesomeIcons.plus),
-  TabItem(icon: FontAwesomeIcons.microphone),
-  TabItem(icon: FontAwesomeIcons.bars),
-];
-
-List<Marker> _markers = [
-  Marker(
-    width: 80,
-    height: 80,
-    point: LatLng(10.75, 106.682613),
-    builder: (ctx) => const FaIcon(FontAwesomeIcons.locationPin),
-  ),
-  Marker(
-    width: 80,
-    height: 80,
-    point: LatLng(10.76, 106.682626),
-    builder: (ctx) => const FaIcon(FontAwesomeIcons.locationPin),
-  ),
-  Marker(
-    width: 80,
-    height: 80,
-    point: LatLng(10.74, 106.682650),
-    builder: (ctx) => const FaIcon(FontAwesomeIcons.locationPin),
-  ),
-];
+import '../test/test.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -48,20 +22,39 @@ class MapPage extends StatefulWidget {
 class _MapPageState extends State<MapPage> {
   Marker? _marker;
   late final Timer _timer;
-  int _markerIndex = 0;
-  final int _selectedIndex = 0;
-  final _controller = ValueNotifier<bool>(false);
+  User? currentUser = FirebaseAuth.instance.currentUser;
+  late Position position;
+  late final MapController _mapController;
 
   @override
   void initState() {
     super.initState();
-    _marker = _markers[_markerIndex];
-    _timer = Timer.periodic(const Duration(seconds: 2), (_) {
-      setState(() {
-        _marker = _markers[_markerIndex];
-        _markerIndex = (_markerIndex + 1) % _markers.length;
+    _mapController = MapController();
+    _marker = Marker(
+      width: 80,
+      height: 80,
+      point: LatLng(0, 0),
+      builder: (ctx) => const FaIcon(FontAwesomeIcons.locationPin),
+    );
+    if (currentUser != null) {
+      _timer = Timer.periodic(const Duration(seconds: 10), (_) async {
+        position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high);
+        sendCurrentLocation(
+            userId: currentUser?.uid ?? "",
+            location: Location(
+                latitude: position.latitude, longitude: position.longitude));
+        setState(() {
+          _marker = Marker(
+              width: 80,
+              height: 80,
+              point: LatLng(position.latitude, position.longitude),
+              builder: (ctx) => const FaIcon(FontAwesomeIcons.locationPin));
+        });
+        _mapController.move(
+            LatLng(position.latitude, position.longitude), _mapController.zoom);
       });
-    });
+    }
   }
 
   @override
@@ -75,9 +68,10 @@ class _MapPageState extends State<MapPage> {
     return Scaffold(
         extendBody: true,
         body: FlutterMap(
+          mapController: _mapController,
           options: MapOptions(
-              center: LatLng(10.762689, 106.682613),
-              zoom: 18,
+              center: LatLng(10.762584, 106.682644),
+              zoom: 15,
               interactiveFlags: InteractiveFlag.drag |
                   InteractiveFlag.doubleTapZoom |
                   InteractiveFlag.pinchZoom),
@@ -90,15 +84,16 @@ class _MapPageState extends State<MapPage> {
           ],
         ),
         floatingActionButton: Builder(builder: (BuildContext context) {
-          return FloatingActionButton(
-            heroTag: "btn1",
-            backgroundColor: const Color(0xFF2697FF),
-            onPressed: () {
-              showModalBottomSheet(
-                backgroundColor: Colors.transparent,
-                barrierColor: Colors.transparent,
-                context: context,
-                builder: (_) => Container(
+          return Column(mainAxisSize: MainAxisSize.min, children: [
+            FloatingActionButton(
+              heroTag: "btn1",
+              backgroundColor: const Color(0xFF2697FF),
+              onPressed: () {
+                showModalBottomSheet(
+                  backgroundColor: Colors.transparent,
+                  barrierColor: Colors.transparent,
+                  context: context,
+                  builder: (_) => Container(
                     height: 550,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -117,21 +112,23 @@ class _MapPageState extends State<MapPage> {
                         topRight: Radius.circular(20),
                       ),
                     ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: const [
-                            Icon(Icons.add),
-                            Icon(Icons.meeting_room_outlined)
-                          ],
-                        )
-                      ],
-                    )),
-              );
-            },
-            child: const Icon(Icons.group),
-          );
+                  ),
+                );
+              },
+              child: const Icon(Icons.group),
+            ),
+            const SizedBox(height: 20),
+            FloatingActionButton(
+              heroTag: "btn1",
+              backgroundColor: const Color(0xFF2697FF),
+              onPressed: () {
+                _mapController.move(
+                    LatLng(position.latitude, position.longitude),
+                    _mapController.zoom);
+              },
+              child: const Icon(Icons.my_location),
+            ),
+          ]);
         }));
   }
 }

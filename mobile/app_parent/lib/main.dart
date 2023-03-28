@@ -2,7 +2,7 @@ import 'package:app_parent/config/app_key.dart';
 import 'package:app_parent/service/graphql.dart';
 import 'package:app_parent/service/spref.dart';
 import 'package:app_parent/src/auth_page/auth_page.dart';
-import 'package:app_parent/src/map_page/map_page.dart';
+import 'package:app_parent/src/room_page/room_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -32,7 +32,8 @@ class MyApp extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasData) {
-              return const MapPage();
+              return const GetMaterialApp(
+                  debugShowCheckedModeBanner: false, home: RoomPage());
             } else {
               return const GetMaterialApp(
                   debugShowCheckedModeBanner: false, home: AuthPage());
