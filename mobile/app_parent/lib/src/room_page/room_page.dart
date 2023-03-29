@@ -1,7 +1,7 @@
 import 'package:app_parent/src/room_page/widget/create_join_room.dart';
 import 'package:flutter/material.dart';
 
-import '../../models/room.dart';
+import '../../models/group.dart';
 
 class RoomPage extends StatefulWidget {
   const RoomPage({super.key});
@@ -11,7 +11,7 @@ class RoomPage extends StatefulWidget {
 }
 
 class _RoomPageState extends State<RoomPage> {
-  List<Room> rooms = [];
+  List<Group> rooms = [];
   TextEditingController nameController = TextEditingController();
 
   @override

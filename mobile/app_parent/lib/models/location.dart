@@ -1,6 +1,8 @@
-class Location {
-  double? latitude;
-  double? longitude;
+class LocationModel {
+  String userId;
+  double latitude;
+  double longitude;
 
-  Location({this.latitude, this.longitude});
+  LocationModel(
+      {required this.latitude, required this.longitude, required this.userId});
 }
