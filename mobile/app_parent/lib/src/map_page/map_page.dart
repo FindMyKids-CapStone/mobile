@@ -34,6 +34,11 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
   late Position position;
   final _mapController = MapController();
 
+  final double _initFabHeight = 200.0;
+  double _fabHeight = 0;
+  double _panelHeightOpen = 0;
+  final double _panelHeightClosed = 180;
+
   @override
   void initState() {
     print(SPref.instance.get(AppKey.authorization));
@@ -44,6 +49,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
       point: LatLng(0, 0),
       builder: (ctx) => const FaIcon(FontAwesomeIcons.locationPin),
     );
+    _fabHeight = _initFabHeight;
   }
 
   @override
@@ -63,7 +69,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
 
     // Create a animation controller that has a duration and a TickerProvider.
     final controller = AnimationController(
-        duration: const Duration(milliseconds: 2000), vsync: this);
+        duration: const Duration(milliseconds: 5000), vsync: this);
     // The animation determines what path the animation will take. You can try different Curves values, although I found
     // fastOutSlowIn to be my favorite.
     final Animation<double> animation =
@@ -89,6 +95,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    _panelHeightOpen = size.height * .70;
     return Query(
         options: QueryOptions(
           document: gql(RoomFetch.getDetailGroup
@@ -131,12 +138,13 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
               ],
             ),
             extendBody: true,
-            body: Container(
-              color: Colors.black26,
-              height: size.height,
-              width: size.width,
-              child: SlidingUpPanel(
-                minHeight: 180,
+            body: Stack(alignment: Alignment.topCenter, children: [
+              SlidingUpPanel(
+                onPanelSlide: (double pos) => setState(() {
+                  _fabHeight = pos * (_panelHeightOpen - _panelHeightClosed) +
+                      _initFabHeight;
+                }),
+                minHeight: _panelHeightClosed,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(30)),
                 panel: ListMember(
@@ -202,15 +210,20 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                   ],
                 ),
               ),
-            ),
-            // floatingActionButton: FloatingActionButton(
-            //   heroTag: "btn1",
-            //   backgroundColor: const Color(0xFF2697FF),
-            //   onPressed: () {
-            //     FirebaseAuth.instance.signOut();
-            //   },
-            //   child: const Icon(Icons.logout),
-            // ),
+              Positioned(
+                right: 20.0,
+                bottom: _fabHeight,
+                child: FloatingActionButton(
+                  onPressed: () {},
+                  backgroundColor: Colors.white,
+                  child: const Icon(
+                    Icons.message,
+                    size: 25,
+                    color: Colors.black54,
+                  ),
+                ),
+              ),
+            ]),
           );
         });
   }
