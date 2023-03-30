@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../models/user_model.dart';
@@ -31,7 +32,10 @@ class _ItemMemberState extends State<ItemMember> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.user.displayName ?? "Vô danh",
+            Text(
+                widget.user.id == FirebaseAuth.instance.currentUser?.uid
+                    ? "Tôi"
+                    : widget.user.displayName ?? "Vô danh",
                 style:
                     const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
             Row(children: [
