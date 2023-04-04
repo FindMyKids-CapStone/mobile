@@ -8,6 +8,7 @@ class Group {
   String? createdAt;
   String? createdBy;
   String? code;
+  String? imgUrl;
   List<UserModel>? users;
 
   Group(

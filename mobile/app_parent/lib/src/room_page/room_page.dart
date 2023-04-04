@@ -81,7 +81,6 @@ class _RoomPageState extends State<RoomPage> {
         body: rooms.isEmpty
             ? Container(
                 width: double.infinity,
-                color: Colors.white,
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [
@@ -100,21 +99,47 @@ class _RoomPageState extends State<RoomPage> {
                       )
                     ]),
               )
-            : ListView.builder(
-                itemCount: rooms.length,
-                itemBuilder: (context, index) => Card(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          ListTile(
-                            leading: Icon(Icons.album),
-                            title: Text('The Enchanted Nightingale'),
-                            subtitle: Text(
-                                'Music by Julie Gable. Lyrics by Sidney Stein.'),
-                          ),
-                        ],
+            : Column(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    margin: const EdgeInsets.fromLTRB(10, 0, 10, 5),
+                    height: 50,
+                    child: const TextField(
+                      decoration: InputDecoration(
+                        hintStyle: TextStyle(fontSize: 17),
+                        hintText: 'Search',
+                        suffixIcon: Icon(Icons.search),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 0),
                       ),
-                    )));
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                        itemCount: rooms.length,
+                        itemBuilder: (context, index) => ListTile(
+                          leading: SizedBox(
+                            width: 50,
+                            height: 50,
+                            child: ClipRRect(
+                                borderRadius:
+                                    BorderRadius.circular(900.0),
+                                child: Image.network(
+                                  rooms[index].imgUrl ??
+                                      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNL_ZnOTpXSvhf1UaK7beHey2BX42U6solRA&usqp=CAU',
+                                  fit: BoxFit.cover,
+                                )),
+                          ),
+                          title: Text(rooms[index].name ?? ''),
+                          subtitle: Text(_memberNames(rooms[index])),
+                        )),
+                  ),
+                ],
+              ));
   }
 
   Future<void> _buildBottomSheetJoinOrCreate(BuildContext context) {
@@ -149,9 +174,11 @@ class _RoomPageState extends State<RoomPage> {
                   height: 50,
                   child: ElevatedButton.icon(
                       onPressed: () {
+                        Navigator.pop(context);
+
                         showDialog(
                             context: context,
-                            builder: (context) =>
+                            builder: (context2) =>
                                 DialogCreateJoin(type: "create"));
                       },
                       icon: const Icon(Icons.new_label),
@@ -174,6 +201,7 @@ class _RoomPageState extends State<RoomPage> {
                     height: 50,
                     child: ElevatedButton.icon(
                         onPressed: () {
+                          Navigator.pop(context);
                           showDialog(
                               context: context,
                               builder: (context) =>
@@ -187,5 +215,16 @@ class _RoomPageState extends State<RoomPage> {
         );
       },
     );
+  }
+
+  String _memberNames(Group room) {
+    String res = "";
+    room.users?.forEach((user) {
+      res += user.displayName ?? '';
+      res += ', ';
+    });
+
+    res = res.substring(0, res.length - 2);
+    return res;
   }
 }
