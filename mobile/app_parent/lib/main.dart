@@ -39,14 +39,14 @@ class MyApp extends StatelessWidget {
                   debugShowCheckedModeBanner: false,
                   home: RoomPage(),
                   theme: ThemeData(
-                      primarySwatch: Colors.deepPurple,
+                      primarySwatch: Colors.indigo,
                       fontFamily: GoogleFonts.rubik().fontFamily));
             } else {
               return GetMaterialApp(
                 debugShowCheckedModeBanner: false,
                 home: AuthPage(),
                 theme: ThemeData(
-                    primarySwatch: Colors.deepPurple,
+                    primarySwatch: Colors.indigo,
                     fontFamily: GoogleFonts.rubik().fontFamily),
               );
             }
