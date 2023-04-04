@@ -16,7 +16,7 @@ class _RoomPageState extends State<RoomPage> {
   List<Group> rooms = [
     Group(
       id: '001',
-      name: 'Tôi và 6 thằng ngu',
+      name: 'asd',
       createdAt: '02 - 03 - 12',
       createdBy: 'aa',
       code: '123',
@@ -26,25 +26,26 @@ class _RoomPageState extends State<RoomPage> {
       ],
     ),
     Group(
-      id: '001',
-      name: 'Tôi và 6 thằng ngu',
+      id: '002',
+      name: 'sdf',
       createdAt: '02 - 03 - 12',
       createdBy: 'aa',
       code: '123',
       users: <UserModel>[
-        UserModel(displayName: "Khe"),
-        UserModel(displayName: "Híu")
+        UserModel(displayName: "Phát"),
+        UserModel(displayName: "Phúc")
       ],
     ),
     Group(
-      id: '001',
-      name: 'Tôi và 6 thằng ngu',
+      id: '003',
+      name: 'dfg',
       createdAt: '02 - 03 - 12',
       createdBy: 'aa',
       code: '123',
       users: <UserModel>[
-        UserModel(displayName: "Khe"),
-        UserModel(displayName: "Híu")
+        UserModel(displayName: "Chiến"),
+        UserModel(displayName: "Nhân"),
+        UserModel(displayName: "Trung")
       ],
     ),
   ];
