@@ -63,6 +63,9 @@ dependencies:
   grpc: ^3.1.0
   sliding_up_panel: ^2.0.0+1
   animated_snack_bar: ^0.3.0
+  bubble: ^1.2.1
+  grouped_list: ^5.1.2
+  google_fonts: ^4.0.3
 
 dev_dependencies:
   flutter_test:

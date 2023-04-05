@@ -1,11 +1,12 @@
 import 'package:app_parent/service/graphql.dart';
 import 'package:app_parent/service/spref.dart';
 import 'package:app_parent/src/auth_page/auth_page.dart';
-import 'package:app_parent/src/map_page/map_page.dart';
+import 'package:app_parent/src/room_page/room_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -16,7 +17,11 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await initializeDateFormatting("vi");
   await SPref.init();
-  runApp(const MaterialApp(home: MyApp()));
+  runApp(MaterialApp(
+    home: const MyApp(),
+    debugShowCheckedModeBanner: false,
+    theme: ThemeData(primarySwatch: Colors.deepPurple),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -32,11 +37,20 @@ class MyApp extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasData) {
-              return const GetMaterialApp(
-                  debugShowCheckedModeBanner: false, home: MapPage());
+              return GetMaterialApp(
+                  debugShowCheckedModeBanner: false,
+                  home: const RoomPage(),
+                  theme: ThemeData(
+                      primarySwatch: Colors.indigo,
+                      fontFamily: GoogleFonts.rubik().fontFamily));
             } else {
-              return const GetMaterialApp(
-                  debugShowCheckedModeBanner: false, home: AuthPage());
+              return GetMaterialApp(
+                debugShowCheckedModeBanner: false,
+                home: const AuthPage(),
+                theme: ThemeData(
+                    primarySwatch: Colors.indigo,
+                    fontFamily: GoogleFonts.rubik().fontFamily),
+              );
             }
           }),
     );
