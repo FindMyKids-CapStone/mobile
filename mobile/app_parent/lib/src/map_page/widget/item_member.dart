@@ -1,5 +1,6 @@
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:app_parent/controllers/group_controller.dart';
+import 'package:app_parent/models/response.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,11 +11,13 @@ class ItemMember extends StatefulWidget {
   UserModel user;
   bool isAdmin;
   VoidCallback jumpToLocation;
+  String targetGroupId;
   ItemMember(
       {super.key,
       required this.user,
       required this.jumpToLocation,
-      required this.isAdmin});
+      required this.isAdmin,
+      required this.targetGroupId});
 
   @override
   State<ItemMember> createState() => _ItemMemberState();
@@ -96,7 +99,7 @@ class _ItemMemberState extends State<ItemMember> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               const Padding(
-                                padding: EdgeInsets.all(8.0),
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
                                 child: Text(
                                   "Setting",
                                   style: TextStyle(fontSize: 20),
@@ -109,13 +112,15 @@ class _ItemMemberState extends State<ItemMember> {
                                           child: InkWell(
                                         splashFactory: InkRipple.splashFactory,
                                         onTap: () async {
-                                          String response =
+                                          ResponseModel response =
                                               await _groupController.kickMember(
-                                                  "5cf89bb3-25b1-43cd-b4aa-d73819c330fc",
+                                                  widget.targetGroupId,
                                                   widget.user.id ?? "");
                                           AnimatedSnackBar.material(
-                                            response,
-                                            type: AnimatedSnackBarType.success,
+                                            response.message,
+                                            type: response.isSuccess
+                                                ? AnimatedSnackBarType.success
+                                                : AnimatedSnackBarType.error,
                                           ).show(context);
                                           Navigator.pop(context);
                                         },
@@ -123,11 +128,13 @@ class _ItemMemberState extends State<ItemMember> {
                                           color: Colors.white,
                                           child: const Padding(
                                             padding: EdgeInsets.symmetric(
-                                                vertical: 10),
+                                                vertical: 20),
                                             child: Text(
                                               textAlign: TextAlign.center,
                                               "Kick",
-                                              style: TextStyle(fontSize: 17),
+                                              style: TextStyle(
+                                                  fontSize: 17,
+                                                  color: Colors.red),
                                             ),
                                           ),
                                         ),
@@ -141,26 +148,31 @@ class _ItemMemberState extends State<ItemMember> {
                                                 InkRipple.splashFactory,
                                             onTap: () async {
                                               print("Leave");
-                                              // String response =
-                                              //     await _groupController.kickMember(
-                                              //         "5cf89bb3-25b1-43cd-b4aa-d73819c330fc",
-                                              //         widget.user.id ?? "");
-                                              // AnimatedSnackBar.material(
-                                              //   response,
-                                              //   type:
-                                              //       AnimatedSnackBarType.success,
-                                              // ).show(context);
-                                              // Navigator.pop(context);
+                                              ResponseModel response =
+                                                  await _groupController
+                                                      .leaveGroup(
+                                                          widget.targetGroupId);
+                                              AnimatedSnackBar.material(
+                                                response.message,
+                                                type: response.isSuccess
+                                                    ? AnimatedSnackBarType
+                                                        .success
+                                                    : AnimatedSnackBarType
+                                                        .error,
+                                              ).show(context);
+                                              Navigator.pop(context);
                                             },
                                             child: Ink(
                                               color: Colors.white,
                                               child: const Padding(
                                                 padding: EdgeInsets.symmetric(
-                                                    vertical: 10),
+                                                    vertical: 20),
                                                 child: Text(
+                                                  textAlign: TextAlign.center,
                                                   "Leave",
-                                                  style:
-                                                      TextStyle(fontSize: 17),
+                                                  style: TextStyle(
+                                                      fontSize: 17,
+                                                      color: Colors.red),
                                                 ),
                                               ),
                                             ),

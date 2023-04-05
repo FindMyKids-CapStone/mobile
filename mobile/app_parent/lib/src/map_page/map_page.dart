@@ -14,7 +14,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-import '../../data/room_fetch.dart';
+import '../../data/group_fetch.dart';
 import '../../models/group.dart';
 import '../../share/animation/route_transation.dart';
 import '../generated/streaming.pb.dart';
@@ -22,7 +22,8 @@ import '../setting_page/setting_page.dart';
 import '../test/test.dart';
 
 class MapPage extends StatefulWidget {
-  const MapPage({super.key});
+  String targetGroupId;
+  MapPage({super.key, required this.targetGroupId});
 
   @override
   State<StatefulWidget> createState() => _MapPageState();
@@ -41,7 +42,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
   final double _panelHeightClosed = 100;
   late AnimationController controller;
 
-  final GroupController _groupController = Get.put(GroupController());
+  final GroupController _groupController = Get.find<GroupController>();
 
   @override
   void initState() {
@@ -96,8 +97,8 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
     _panelHeightOpen = size.height * .5;
     return Query(
         options: QueryOptions(
-            document: gql(RoomFetch.getDetailGroup
-                .replaceAll("idRoom", "5cf89bb3-25b1-43cd-b4aa-d73819c330fc")),
+            document: gql(GroupFetch.getDetailGroup
+                .replaceAll("idRoom", widget.targetGroupId)),
             fetchPolicy: FetchPolicy.noCache),
         builder: (result, {fetchMore, refetch}) {
           if (result.hasException) {
@@ -120,7 +121,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
           _groupController.repositories = repositories;
           print(isAdmin);
           _groupController.isAdmin = isAdmin;
-          _groupController.update();
+          // _groupController.update();
           return GetBuilder<GroupController>(builder: (controller) {
             print(controller.repositories?.users?.length);
             return Scaffold(
@@ -131,7 +132,9 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                 title: const Text("Room"),
                 leading: GestureDetector(
                   child: const Icon(Icons.arrow_back, color: Colors.black87),
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
                 ),
                 actions: [
                   IconButton(
@@ -160,7 +163,8 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                         scrollController: scrollController,
                         mapController: _mapController,
                         users: controller.repositories?.users ?? [],
-                        isAdmin: controller.isAdmin),
+                        isAdmin: controller.isAdmin,
+                        targetGroupId: widget.targetGroupId),
                     body: FlutterMap(
                       mapController: _mapController,
                       options: MapOptions(

@@ -13,12 +13,14 @@ class ListMember extends StatefulWidget {
   MapController mapController;
   List<UserModel> users;
   bool isAdmin;
+  String targetGroupId;
   ListMember(
       {super.key,
       required this.mapController,
       required this.users,
       required this.scrollController,
-      required this.isAdmin});
+      required this.isAdmin,
+      required this.targetGroupId});
 
   @override
   State<ListMember> createState() => _ListMemberState();
@@ -68,14 +70,16 @@ class _ListMemberState extends State<ListMember> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: ItemMember(
+                  targetGroupId: widget.targetGroupId,
                   isAdmin: widget.isAdmin,
                   user: responseData,
                   jumpToLocation: () async {
                     List<LocationModel> locations =
                         await getLocation(userId: [responseData.id ?? ""]);
                     widget.mapController.move(
-                        LatLng(locations[0].latitude, locations[0].longitude),
-                        widget.mapController.zoom);
+                        LatLng(locations[0].latitude - 0.003,
+                            locations[0].longitude),
+                        16);
                   },
                 ),
               ),
