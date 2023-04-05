@@ -1,4 +1,5 @@
 import 'package:app_parent/service/graphql.dart';
+import 'package:app_parent/service/spref.dart';
 import 'package:app_parent/src/auth_page/auth_page.dart';
 import 'package:app_parent/src/map_page/map_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,6 +15,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await initializeDateFormatting("vi");
+  await SPref.init();
   runApp(const MaterialApp(home: MyApp()));
 }
 

@@ -9,9 +9,16 @@ import '../../test/test.dart';
 import 'item_member.dart';
 
 class ListMember extends StatefulWidget {
-  MapController controller;
+  ScrollController scrollController;
+  MapController mapController;
   List<UserModel> users;
-  ListMember({super.key, required this.controller, required this.users});
+  bool isAdmin;
+  ListMember(
+      {super.key,
+      required this.mapController,
+      required this.users,
+      required this.scrollController,
+      required this.isAdmin});
 
   @override
   State<ListMember> createState() => _ListMemberState();
@@ -20,49 +27,60 @@ class ListMember extends StatefulWidget {
 class _ListMemberState extends State<ListMember> {
   @override
   Widget build(BuildContext context) {
+    // return ListView(
+    //   padding: EdgeInsets.zero,
+    //   children: const [
+    //     SizedBox(
+    //       height: 36,
+    //     ),
+    //     SizedBox(
+    //       height: 24,
+    //     ),
+    //   ],
+    // );
     Size size = MediaQuery.of(context).size;
     return SizedBox(
       width: double.infinity,
-      child: Column(children: [
-        Container(
-          width: 50,
-          height: 5,
-          margin: const EdgeInsets.only(top: 10),
-          decoration: const BoxDecoration(
-              color: Colors.black12,
-              borderRadius: BorderRadius.all(Radius.circular(100))),
-        ),
+      child: ListView(controller: widget.scrollController, children: [
+        Align(
+            alignment: Alignment.center,
+            child: Container(
+              width: 50,
+              height: 5,
+              margin: const EdgeInsets.only(top: 10),
+              decoration: const BoxDecoration(
+                  color: Colors.black12,
+                  borderRadius: BorderRadius.all(Radius.circular(100))),
+            )),
         const SizedBox(height: 10),
         Container(
             margin: const EdgeInsets.symmetric(horizontal: 20),
             width: double.infinity,
-            child: const Text("Thành viên",
+            child: const Text("Members",
                 textAlign: TextAlign.left, style: TextStyle(fontSize: 23))),
         ListView.builder(
-          scrollDirection: Axis.vertical,
+          physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           itemCount: widget.users.length,
           itemBuilder: (context, index) {
             UserModel responseData = widget.users[index];
-            return Material(
-              child: InkWell(
-                splashFactory: InkRipple.splashFactory,
-                onTap: () async {
-                  List<LocationModel> locations =
-                      await getLocation(userId: [responseData.id ?? ""]);
-                  widget.controller.move(
-                      LatLng(locations[0].latitude, locations[0].longitude),
-                      widget.controller.zoom);
-                },
-                child: Ink(
-                  color: Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: ItemMember(user: responseData),
-                  ),
+            return Column(children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: ItemMember(
+                  isAdmin: widget.isAdmin,
+                  user: responseData,
+                  jumpToLocation: () async {
+                    List<LocationModel> locations =
+                        await getLocation(userId: [responseData.id ?? ""]);
+                    widget.mapController.move(
+                        LatLng(locations[0].latitude, locations[0].longitude),
+                        widget.mapController.zoom);
+                  },
                 ),
               ),
-            );
+              const Divider()
+            ]);
           },
         ),
         Container(
@@ -89,7 +107,7 @@ class _ListMemberState extends State<ListMember> {
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent),
                 onPressed: () {},
-                child: const Text("Thêm thành viên mới"))),
+                child: const Text("Add new member"))),
       ]),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:app_parent/src/auth_page/auth_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -35,6 +36,12 @@ class _SettingPageState extends State<SettingPage> {
               splashFactory: InkRipple.splashFactory,
               onTap: () {
                 FirebaseAuth.instance.signOut();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) => const AuthPage(),
+                  ),
+                );
               },
               child: Ink(
                 color: Colors.white,
