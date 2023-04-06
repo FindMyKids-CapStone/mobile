@@ -68,7 +68,8 @@ class _RoomPageState extends State<RoomPage> {
             }),
         builder: (result, {fetchMore, refetch}) {
           if (result.hasException) {
-            return Text(result.exception.toString());
+            print(result.exception.toString());
+            return const Center(child: Text("Error"));
           }
           if (result.isLoading) {
             return Container(

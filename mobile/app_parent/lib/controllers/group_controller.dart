@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:app_parent/config/app_key.dart';
 import 'package:app_parent/config/backend.dart';
 import 'package:app_parent/models/group.dart';
+import 'package:app_parent/models/location.dart';
 import 'package:app_parent/service/spref.dart';
+import 'package:app_parent/src/generated/streaming.pb.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
@@ -11,8 +13,10 @@ import '../models/response.dart';
 
 class GroupController extends GetxController {
   bool isAdmin = false;
-  Group? repositories;
+  Group? targetGroup;
   List<Group> groups = [];
+  List<LocationModel> locations = [];
+  Location? currentLocation;
 
   Future<ResponseModel> kickMember(String groupId, String userId) async {
     print(SPref.instance.get(AppKey.authorization));
@@ -25,7 +29,7 @@ class GroupController extends GetxController {
         body: jsonEncode({"groupID": groupId, "userID": userId}));
     var bodyJson = jsonDecode(res.body);
     if (res.statusCode == 200) {
-      repositories?.users?.removeWhere((element) => element.id == userId);
+      targetGroup?.users?.removeWhere((element) => element.id == userId);
       update();
       return ResponseModel(
           isSuccess: true, message: bodyJson["data"]["message"]);
@@ -53,14 +57,14 @@ class GroupController extends GetxController {
     }
   }
 
-  Future<ResponseModel> disbandGroup(String groupId) async {
+  Future<ResponseModel> disbandGroup() async {
     var res = await http.post(Uri.parse('$BACKEND_HTTP/group/disband'),
         headers: {
           "Content-type": "application/json",
           "Authorization":
               "firebase ${SPref.instance.get(AppKey.authorization)}"
         },
-        body: jsonEncode({"groupID": groupId}));
+        body: jsonEncode({"groupID": targetGroup?.id}));
     var bodyJson = jsonDecode(res.body);
     if (res.statusCode == 200) {
       return ResponseModel(

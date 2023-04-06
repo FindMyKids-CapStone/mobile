@@ -1,6 +1,9 @@
-import 'package:app_parent/src/auth_page/auth_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:animated_snack_bar/animated_snack_bar.dart';
+import 'package:app_parent/controllers/group_controller.dart';
+import 'package:app_parent/models/response.dart';
+import 'package:app_parent/share/dialog/confirm_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
@@ -10,6 +13,7 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
+  final GroupController _groupController = Get.find<GroupController>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,36 +29,83 @@ class _SettingPageState extends State<SettingPage> {
         ),
         elevation: 1,
       ),
-      body: Column(children: [
-        Container(
-          decoration: const BoxDecoration(
-              border:
-                  Border(bottom: BorderSide(width: 1, color: Colors.black12)),
-              color: Colors.white),
-          child: Material(
+      body: Container(
+        margin: const EdgeInsets.all(20),
+        child: Column(children: [
+          // Material(
+          //   child: InkWell(
+          //     splashFactory: InkRipple.splashFactory,
+          //     onTap: () {
+          //       FirebaseAuth.instance.signOut();
+          //       Navigator.pushReplacement(
+          //         context,
+          //         MaterialPageRoute<void>(
+          //           builder: (BuildContext context) => const AuthPage(),
+          //         ),
+          //       );
+          //     },
+          //     child: Ink(
+          //       decoration: BoxDecoration(
+          //           border: Border.all(color: Colors.black),
+          //           borderRadius: const BorderRadius.all(Radius.circular(999))),
+          //       child: Padding(
+          //         padding:
+          //             const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+          //         child: Row(
+          //           children: const [
+          //             Icon(Icons.logout),
+          //             SizedBox(width: 10),
+          //             Text(
+          //               "Đăng xuất",
+          //               style: TextStyle(fontSize: 17),
+          //             )
+          //           ],
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          // const SizedBox(
+          //   height: 20,
+          // ),
+          Material(
             child: InkWell(
               splashFactory: InkRipple.splashFactory,
-              onTap: () {
-                FirebaseAuth.instance.signOut();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute<void>(
-                    builder: (BuildContext context) => const AuthPage(),
-                  ),
-                );
+              onTap: () async {
+                await showConfirmDialog(
+                    title: "Disband group",
+                    content: "Do you really want to disband this group?",
+                    context: context,
+                    confirmAction: () async {
+                      ResponseModel response =
+                          await _groupController.disbandGroup();
+                      AnimatedSnackBar.material(
+                        response.message,
+                        type: response.isSuccess
+                            ? AnimatedSnackBarType.success
+                            : AnimatedSnackBarType.error,
+                      ).show(context);
+                      Navigator.popUntil(context, (route) => route.isFirst);
+                    },
+                    confirmText: "Disband");
               },
               child: Ink(
-                color: Colors.white,
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black),
+                    borderRadius: const BorderRadius.all(Radius.circular(999))),
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
                   child: Row(
                     children: const [
-                      Icon(Icons.logout),
+                      Icon(
+                        Icons.delete,
+                        color: Colors.red,
+                      ),
                       SizedBox(width: 10),
                       Text(
-                        "Đăng xuất",
-                        style: TextStyle(fontSize: 17),
+                        "Disband group",
+                        style: TextStyle(fontSize: 17, color: Colors.red),
                       )
                     ],
                   ),
@@ -62,8 +113,8 @@ class _SettingPageState extends State<SettingPage> {
               ),
             ),
           ),
-        )
-      ]),
+        ]),
+      ),
     );
   }
 }

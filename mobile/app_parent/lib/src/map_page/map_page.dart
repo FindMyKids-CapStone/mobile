@@ -2,24 +2,22 @@ import 'dart:async';
 
 import 'package:app_parent/controllers/group_controller.dart';
 import 'package:app_parent/models/location.dart';
+import 'package:app_parent/src/generated/streaming.pbgrpc.dart';
 import 'package:app_parent/src/map_page/widget/list_member_widget.dart';
+import 'package:app_parent/src/test/test.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 // import 'package:flutter_map_example/widgets/drawer.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:syncfusion_flutter_maps/maps.dart';
 
 import '../../data/group_fetch.dart';
 import '../../models/group.dart';
 import '../../share/animation/route_transation.dart';
-import '../generated/streaming.pb.dart';
 import '../setting_page/setting_page.dart';
-import '../test/test.dart';
 
 class MapPage extends StatefulWidget {
   String targetGroupId;
@@ -30,11 +28,16 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
-  List<Marker> marker = [];
-  late final Timer _timer;
-  User? currentUser = FirebaseAuth.instance.currentUser;
+  late MapTileLayerController _mapTileLayerController;
+  List<MapMarker> marker = [];
+  late Timer _timer;
   late Position position;
-  final _mapController = MapController();
+  final MapZoomPanBehavior _zoomPanBehavior = MapZoomPanBehavior(
+      focalLatLng: const MapLatLng(0, 0),
+      minZoomLevel: 5,
+      maxZoomLevel: 19.55,
+      zoomLevel: 5,
+      enableDoubleTapZooming: true);
 
   final double _initFabHeight = 130.0;
   double _fabHeight = 0;
@@ -42,12 +45,14 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
   final double _panelHeightClosed = 100;
   late AnimationController controller;
 
+  User? currentUser = FirebaseAuth.instance.currentUser;
   final GroupController _groupController = Get.find<GroupController>();
 
   @override
   void initState() {
-    super.initState();
     _fabHeight = _initFabHeight;
+    _mapTileLayerController = MapTileLayerController();
+    super.initState();
   }
 
   @override
@@ -57,38 +62,10 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  void _animatedMapMove(LatLng destLocation, double destZoom) {
-    // Create some tweens. These serve to split up the transition from one location to another.
-    // In our case, we want to split the transition be<tween> our current map center and the destination.
-    final latTween = Tween<double>(
-        begin: _mapController.center.latitude, end: destLocation.latitude);
-    final lngTween = Tween<double>(
-        begin: _mapController.center.longitude, end: destLocation.longitude);
-    final zoomTween = Tween<double>(begin: _mapController.zoom, end: destZoom);
-
-    // Create a animation controller that has a duration and a TickerProvider.
-    controller = AnimationController(
-        duration: const Duration(milliseconds: 5000), vsync: this);
-    // The animation determines what path the animation will take. You can try different Curves values, although I found
-    // fastOutSlowIn to be my favorite.
-    final Animation<double> animation =
-        CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
-
-    controller.addListener(() {
-      _mapController.move(
-          LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
-          zoomTween.evaluate(animation));
-    });
-
-    animation.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        controller.dispose();
-      } else if (status == AnimationStatus.dismissed) {
-        controller.dispose();
-      }
-    });
-
-    controller.forward();
+  Future<Position> getCurrentPosition() async {
+    position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    return position;
   }
 
   @override
@@ -106,9 +83,8 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
           }
           if (result.isLoading) {
             return Container(
-                color: Colors.black,
-                child: const Image(
-                    image: AssetImage("assets/img/zenly-logo.jpg")));
+                color: Colors.white,
+                child: const Center(child: CircularProgressIndicator()));
           }
           print("Result $result");
           Group repositories = Group.fromJson(result.data?['groupByPK']);
@@ -118,128 +94,160 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
           }
           bool isAdmin = repositories.createdBy == currentUser?.uid;
 
-          _groupController.repositories = repositories;
-          print(isAdmin);
+          _groupController.targetGroup = repositories;
           _groupController.isAdmin = isAdmin;
-          // _groupController.update();
-          return GetBuilder<GroupController>(builder: (controller) {
-            print(controller.repositories?.users?.length);
-            return Scaffold(
-              appBar: AppBar(
-                backgroundColor: Colors.white,
-                titleTextStyle:
-                    const TextStyle(color: Colors.black87, fontSize: 19),
-                title: const Text("Room"),
-                leading: GestureDetector(
-                  child: const Icon(Icons.arrow_back, color: Colors.black87),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.settings, color: Colors.black87),
-                    onPressed: () {
-                      Navigator.of(context)
-                          .push(createRoute(widget: const SettingPage()));
-                    },
-                  )
-                ],
-              ),
-              extendBody: true,
-              body: StatefulBuilder(builder: (context, mapSetState) {
-                return Stack(alignment: Alignment.topCenter, children: [
-                  SlidingUpPanel(
-                    onPanelSlide: (double pos) => mapSetState(() {
-                      _fabHeight =
-                          pos * (_panelHeightOpen - _panelHeightClosed) +
-                              _initFabHeight;
-                    }),
-                    minHeight: _panelHeightClosed,
-                    maxHeight: _panelHeightOpen,
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(30)),
-                    panelBuilder: (scrollController) => ListMember(
-                        scrollController: scrollController,
-                        mapController: _mapController,
-                        users: controller.repositories?.users ?? [],
-                        isAdmin: controller.isAdmin,
-                        targetGroupId: widget.targetGroupId),
-                    body: FlutterMap(
-                      mapController: _mapController,
-                      options: MapOptions(
-                        center: LatLng(10.762584, 106.682644),
-                        zoom: 6,
-                        interactiveFlags: InteractiveFlag.drag |
-                            InteractiveFlag.doubleTapZoom |
-                            InteractiveFlag.pinchZoom,
-                        onMapReady: () async {
-                          position = await Geolocator.getCurrentPosition(
-                              desiredAccuracy: LocationAccuracy.high);
-                          _animatedMapMove(
-                              LatLng(position.latitude, position.longitude),
-                              15);
-                          if (currentUser != null) {
-                            _timer = Timer.periodic(const Duration(seconds: 10),
-                                (_) async {
-                              position = await Geolocator.getCurrentPosition(
-                                  desiredAccuracy: LocationAccuracy.high);
-                              sendCurrentLocation(
-                                  userId: currentUser?.uid ?? "",
-                                  location: Location(
-                                      latitude: position.latitude,
-                                      longitude: position.longitude));
-                              List<LocationModel> locations = await getLocation(
-                                  userId: controller.repositories?.users
-                                          ?.map((user) => user.id ?? "")
-                                          .toList() ??
-                                      []);
-                              if (mounted) {
-                                List<Marker> newMarkers = locations
-                                    .map((location) => Marker(
-                                        width: 80,
-                                        height: 80,
-                                        point: LatLng(location.latitude,
-                                            location.longitude),
-                                        builder: (ctx) => const FaIcon(
-                                            FontAwesomeIcons.locationPin)))
-                                    .toList();
-                                mapSetState(() {
-                                  marker = newMarkers;
-                                });
-                              }
-                            });
-                          }
-                        },
-                      ),
-                      children: [
-                        TileLayer(
-                          urlTemplate:
-                              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                          userAgentPackageName:
-                              'dev.fleaflet.flutter_map.example',
-                        ),
-                        MarkerLayer(markers: marker),
-                      ],
-                    ),
-                  ),
-                  Positioned(
-                    right: 20.0,
-                    bottom: _fabHeight,
-                    child: FloatingActionButton(
-                      onPressed: () {},
-                      backgroundColor: Colors.white,
-                      child: const Icon(
-                        Icons.message,
-                        size: 25,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ),
-                ]);
-              }),
-            );
+          _timer = Timer.periodic(const Duration(seconds: 10), (_) async {
+            position = await Geolocator.getCurrentPosition(
+                desiredAccuracy: LocationAccuracy.high);
+            if (position.latitude !=
+                    _groupController.currentLocation?.latitude &&
+                position.longitude !=
+                    _groupController.currentLocation?.longitude) {
+              Location newLocation = Location(
+                  latitude: position.latitude, longitude: position.longitude);
+              sendCurrentLocation(
+                  userId: currentUser?.uid ?? "", location: newLocation);
+              _groupController.currentLocation = newLocation;
+            }
+            List<LocationModel> locations = await getLocation(
+                userId:
+                    repositories.users?.map((user) => user.id ?? "").toList() ??
+                        []);
+            _groupController.locations = locations;
+            _groupController.update();
           });
+
+          return FutureBuilder(
+              future: getCurrentPosition(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  _zoomPanBehavior.focalLatLng = MapLatLng(
+                      snapshot.data?.latitude ?? 0,
+                      snapshot.data?.longitude ?? 0);
+                  _zoomPanBehavior.zoomLevel = 15;
+                  return StatefulBuilder(
+                      builder: (context, setStateInitMarker) {
+                    setStateInitMarker(
+                      () {
+                        marker = [
+                          MapMarker(
+                              latitude: snapshot.data?.latitude ?? 0,
+                              longitude: snapshot.data?.longitude ?? 0)
+                        ];
+                      },
+                    );
+                    return GetBuilder<GroupController>(builder: (controller) {
+                      return Scaffold(
+                          appBar: AppBar(
+                            backgroundColor: Colors.white,
+                            titleTextStyle: const TextStyle(
+                                color: Colors.black87, fontSize: 19),
+                            title: const Text("Room"),
+                            leading: GestureDetector(
+                              child: const Icon(Icons.arrow_back,
+                                  color: Colors.black87),
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                            actions: [
+                              IconButton(
+                                icon: const Icon(Icons.settings,
+                                    color: Colors.black87),
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                      createRoute(widget: const SettingPage()));
+                                },
+                              )
+                            ],
+                          ),
+                          extendBody: true,
+                          body:
+                              Stack(alignment: Alignment.topCenter, children: [
+                            SlidingUpPanel(
+                              minHeight: _panelHeightClosed,
+                              maxHeight: _panelHeightOpen,
+                              borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(30)),
+                              panelBuilder: (scrollController) => ListMember(
+                                  scrollController: scrollController,
+                                  zoomPanBehavior: _zoomPanBehavior,
+                                  users: controller.targetGroup?.users ?? [],
+                                  isAdmin: controller.isAdmin,
+                                  targetGroupId: widget.targetGroupId),
+                              body: StatefulBuilder(
+                                  builder: (context, mapSetState) {
+                                List<MapMarker> newMarkers = controller
+                                    .locations
+                                    .map((location) => MapMarker(
+                                        latitude: location.latitude,
+                                        longitude: location.longitude))
+                                    .toList();
+                                if (newMarkers.isNotEmpty) {
+                                  if (_mapTileLayerController.markersCount >
+                                      0) {
+                                    _mapTileLayerController.clearMarkers();
+                                  }
+                                  if (marker.isNotEmpty) {
+                                    marker.asMap().forEach((index, element) {
+                                      _mapTileLayerController
+                                          .insertMarker(index);
+                                    });
+                                  }
+                                  mapSetState(() {
+                                    marker = newMarkers;
+                                  });
+                                }
+                                return FutureBuilder(
+                                    future: getBingUrlTemplate(
+                                        'http://dev.virtualearth.net/REST/V1/Imagery/Metadata/Road?output=json&include=ImageryProviders&key=AkARLU75gtkZwPerbL6k2ODEHKIHdBAMH3wpNhhwESufXCVdmgp1W8AdCbwj0gX_'),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        return SfMaps(
+                                          layers: [
+                                            MapTileLayer(
+                                                controller:
+                                                    _mapTileLayerController,
+                                                zoomPanBehavior:
+                                                    _zoomPanBehavior,
+                                                urlTemplate:
+                                                    snapshot.data ?? "",
+                                                initialMarkersCount:
+                                                    marker.length,
+                                                markerBuilder:
+                                                    (context, index) {
+                                                  return marker[index];
+                                                }),
+                                          ],
+                                        );
+                                      }
+                                      return const Center(
+                                          child: CircularProgressIndicator());
+                                    });
+                              }),
+                            ),
+                            Positioned(
+                              right: 10.0,
+                              top: 10,
+                              child: FloatingActionButton(
+                                mini: true,
+                                onPressed: () {},
+                                backgroundColor: Colors.white,
+                                child: const Icon(
+                                  Icons.message,
+                                  size: 25,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ),
+                          ]));
+                    });
+                  });
+                }
+                return Container(
+                    color: Colors.white,
+                    child: const Center(child: CircularProgressIndicator()));
+              });
         });
   }
 }

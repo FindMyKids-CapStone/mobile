@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:syncfusion_flutter_maps/maps.dart';
 
 import '../../../models/location.dart';
 import '../../../models/user_model.dart';
@@ -10,13 +9,13 @@ import 'item_member.dart';
 
 class ListMember extends StatefulWidget {
   ScrollController scrollController;
-  MapController mapController;
+  MapZoomPanBehavior zoomPanBehavior;
   List<UserModel> users;
   bool isAdmin;
   String targetGroupId;
   ListMember(
       {super.key,
-      required this.mapController,
+      required this.zoomPanBehavior,
       required this.users,
       required this.scrollController,
       required this.isAdmin,
@@ -76,10 +75,11 @@ class _ListMemberState extends State<ListMember> {
                   jumpToLocation: () async {
                     List<LocationModel> locations =
                         await getLocation(userId: [responseData.id ?? ""]);
-                    widget.mapController.move(
-                        LatLng(locations[0].latitude - 0.003,
-                            locations[0].longitude),
-                        16);
+                    print(locations[0].latitude);
+                    print(locations[0].longitude);
+                    widget.zoomPanBehavior.focalLatLng = MapLatLng(
+                        locations[0].latitude - 0.002, locations[0].longitude);
+                    widget.zoomPanBehavior.zoomLevel = 17;
                   },
                 ),
               ),
