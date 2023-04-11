@@ -74,4 +74,24 @@ class GroupController extends GetxController {
           isSuccess: false, message: bodyJson["error"]["message"]);
     }
   }
+
+  Future<ResponseModel> createGroup(String name, String password) async {
+    var res = await http.post(Uri.parse('$BACKEND_HTTP/group/create'),
+        headers: {
+          "Content-type": "application/json",
+          "Authorization":
+              "firebase ${SPref.instance.get(AppKey.authorization)}"
+        },
+        body: jsonEncode({"name": name, "password": password}));
+    var bodyJson = jsonDecode(res.body);
+    if (res.statusCode == 200) {
+      groups.add(Group.fromJson(bodyJson["data"]));
+      update();
+      return ResponseModel(
+          isSuccess: true, message: "Create group successfully");
+    } else {
+      return ResponseModel(
+          isSuccess: false, message: bodyJson["error"]["message"]);
+    }
+  }
 }

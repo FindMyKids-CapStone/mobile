@@ -20,7 +20,7 @@ class UserModel {
 
   UserModel.fromJson(dynamic json) {
     id = json['id'];
-    displayName = json['displayName'];
+    displayName = json['displayName'] ?? json['name'];
     email = json['email'];
     joinAt = json['joinAt'] != null
         ? dateTimeConvertString(

@@ -1,6 +1,5 @@
 class GroupFetch {
-  static String getListGroup =
-      """
+  static String getListGroup = """
     query MyQuery(\$page:Int, \$limit: Int) {
       group(limit: \$limit, page: \$page) {
         group {
@@ -19,17 +18,11 @@ class GroupFetch {
             role
           }
         }
-        pagination {
-          currentPage
-          total
-          totalPages
-        }
       }
     }
   """;
 
-  static String getDetailGroup =
-      """
+  static String getDetailGroup = """
     query{
       groupByPK(id: "idRoom") {
         code

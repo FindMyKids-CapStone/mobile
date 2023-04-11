@@ -109,8 +109,9 @@ class _RoomPageState extends State<RoomPage> {
                       )),
                 ],
               ),
-              body: rooms.isEmpty
-                  ? SizedBox(
+              body: controller.groups.isEmpty
+                  ? Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 30),
                       width: double.infinity,
                       child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -120,13 +121,13 @@ class _RoomPageState extends State<RoomPage> {
                                     "assets/img/rooms-not-found.jpg"),
                                 height: 100),
                             Text(
-                              "Bạn chưa tham gia nhóm nào",
+                              "You have not joined any groups yet",
                               style: TextStyle(fontSize: 20),
                               textAlign: TextAlign.center,
                             ),
                             SizedBox(height: 10),
                             Text(
-                              "Vui lòng tạo hoặc tham gia nhóm",
+                              "Please create or join the group",
                               textAlign: TextAlign.center,
                             )
                           ]),
@@ -203,9 +204,7 @@ class _RoomPageState extends State<RoomPage> {
       builder: (BuildContext context) {
         return Container(
           margin: const EdgeInsets.fromLTRB(20, 20, 20, 100),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+          child: ListView(
             children: <Widget>[
               Text(
                 'Create a Room'.tr,

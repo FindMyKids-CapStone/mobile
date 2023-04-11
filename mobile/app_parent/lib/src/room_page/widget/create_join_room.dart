@@ -1,4 +1,8 @@
+import 'package:animated_snack_bar/animated_snack_bar.dart';
+import 'package:app_parent/controllers/group_controller.dart';
+import 'package:app_parent/models/response.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class DialogCreateJoin extends StatefulWidget {
   String type;
@@ -10,12 +14,15 @@ class DialogCreateJoin extends StatefulWidget {
 }
 
 class _DialogCreateJoinState extends State<DialogCreateJoin> {
-  TextEditingController nameController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  final GroupController _groupController = Get.find<GroupController>();
 
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      titlePadding: EdgeInsets.fromLTRB(0, 25, 0, 0),
+      titlePadding: const EdgeInsets.fromLTRB(0, 25, 0, 0),
       elevation: 0,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(15))),
@@ -33,16 +40,17 @@ class _DialogCreateJoinState extends State<DialogCreateJoin> {
           ),
           margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
           height: 50,
-          child: const TextField(
+          child: TextField(
+            controller: _nameController,
             decoration: InputDecoration(
-              hintStyle: TextStyle(fontSize: 15),
-              hintText: 'Invitation Key',
-              icon: Padding(
+              hintStyle: const TextStyle(fontSize: 15),
+              hintText: widget.type == "join" ? 'Invitation Key' : 'Name',
+              icon: const Padding(
                 padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
                 child: Icon(Icons.mail),
               ),
               border: InputBorder.none,
-              contentPadding: EdgeInsets.fromLTRB(0, 0, 20, 0),
+              contentPadding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
             ),
           ),
         ),
@@ -53,8 +61,9 @@ class _DialogCreateJoinState extends State<DialogCreateJoin> {
           ),
           margin: const EdgeInsets.fromLTRB(20, 0, 20, 5),
           height: 50,
-          child: const TextField(
-            decoration: InputDecoration(
+          child: TextField(
+            controller: _passwordController,
+            decoration: const InputDecoration(
               hintStyle: TextStyle(fontSize: 15),
               hintText: 'Password',
               icon: Padding(
@@ -69,10 +78,26 @@ class _DialogCreateJoinState extends State<DialogCreateJoin> {
         Padding(
           padding: const EdgeInsets.only(top: 10, bottom: 10),
           child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            ElevatedButton(onPressed: () {}, child: const Text("Cancel")),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("Cancel")),
             const SizedBox(width: 10),
             ElevatedButton(
-                onPressed: () {},
+                onPressed: () async {
+                  if (widget.type == "create") {
+                    ResponseModel res = await _groupController.createGroup(
+                        _nameController.text, _passwordController.text);
+                    AnimatedSnackBar.material(
+                      res.message,
+                      type: res.isSuccess
+                          ? AnimatedSnackBarType.success
+                          : AnimatedSnackBarType.error,
+                    ).show(context);
+                  }
+                  Navigator.pop(context);
+                },
                 child: Text(widget.type == "join" ? "Join" : "Create"))
           ]),
         ),
