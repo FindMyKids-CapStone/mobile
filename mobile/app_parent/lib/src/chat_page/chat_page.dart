@@ -1,10 +1,14 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, library_prefixes
 
+import 'package:app_parent/service/spref.dart';
 import 'package:flutter/material.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:intl/intl.dart';
 import 'package:app_parent/models/chat_message.dart';
 import 'package:bubble/bubble.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+
+import '../../config/app_key.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -14,6 +18,7 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  late IO.Socket _socket;
   final textFieldController = TextEditingController();
   List<Message> messageList = [
     Message(
@@ -67,9 +72,35 @@ class _ChatPageState extends State<ChatPage> {
         sentByMe: false),
   ];
 
+  void _connectToServer() {
+    _socket = IO.io("http://35.202.63.4:8080/", <String, dynamic>{
+      "transports": ["websocket"],
+      "auth": {
+        "token": "${AppKey.authorization} " +
+            SPref.instance.get(AppKey.authorization)
+      }
+    });
+    _socket.onConnect((_) {
+      _socket.emit("chat:join-room",
+          {"idGroup": "5cf89bb3-25b1-43cd-b4aa-d73819c330fc"});
+      print('CONNECT STATUS: CONNECT');
+      _getAllMessage();
+    });
+    print("CONNECT STATUS: ${_socket.connected}");
+  }
+
+  void _getAllMessage() {
+    _socket.emit("chat:get-all-message",
+        {"idGroup": "5cf89bb3-25b1-43cd-b4aa-d73819c330fc"});
+    _socket.on("chat:receive-message", (data) {
+      print("ALL THE MESSAAGE: $data");
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    _connectToServer();
   }
 
   @override
@@ -87,6 +118,8 @@ class _ChatPageState extends State<ChatPage> {
         child: Column(children: [
           Expanded(
             child: GroupedListView<Message, DateTime>(
+              order: GroupedListOrder.DESC,
+              reverse: true,
               padding: const EdgeInsets.all(10),
               elements: messageList,
               groupBy: (message) => DateTime(
@@ -161,6 +194,12 @@ class _ChatPageState extends State<ChatPage> {
                     color: Colors.blue,
                   ),
                   onPressed: () {
+                    print("CONNECT STATUS AFTER PRESS: ${_socket.connected}");
+                    _socket.emit("chat:send-message", {
+                      "idGroup": "5cf89bb3-25b1-43cd-b4aa-d73819c330fc",
+                      "message": textFieldController.text
+                    });
+                    _getAllMessage();
                     setState(() {
                       messageList.add(Message(
                           message: textFieldController.text,
