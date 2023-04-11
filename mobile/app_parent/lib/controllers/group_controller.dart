@@ -96,15 +96,14 @@ class GroupController extends GetxController {
     }
   }
 
-  Future<ResponseModel> updateGroup(
-      {required String name, required String groupId}) async {
+  Future<ResponseModel> updateGroup({required String name}) async {
     var res = await http.post(Uri.parse('$BACKEND_HTTP/group/update'),
         headers: {
           "Content-type": "application/json",
           "Authorization":
               "firebase ${SPref.instance.get(AppKey.authorization)}"
         },
-        body: jsonEncode({"groupID": groupId, "name": name}));
+        body: jsonEncode({"groupID": targetGroup?.id, "name": name}));
     var bodyJson = jsonDecode(res.body);
     if (res.statusCode == 200) {
       if (targetGroup != null) {
@@ -115,6 +114,25 @@ class GroupController extends GetxController {
       }
       return ResponseModel(
           isSuccess: true, message: "Change name successfully");
+    } else {
+      return ResponseModel(
+          isSuccess: false, message: bodyJson["error"]["message"]);
+    }
+  }
+
+  Future<ResponseModel> changePassword({required String password}) async {
+    var res = await http.post(Uri.parse('$BACKEND_HTTP/group/change-password'),
+        headers: {
+          "Content-type": "application/json",
+          "Authorization":
+              "firebase ${SPref.instance.get(AppKey.authorization)}"
+        },
+        body:
+            jsonEncode({"groupID": targetGroup?.id, "newPassword": password}));
+    var bodyJson = jsonDecode(res.body);
+    if (res.statusCode == 200) {
+      return ResponseModel(
+          isSuccess: true, message: "Change password successfully");
     } else {
       return ResponseModel(
           isSuccess: false, message: bodyJson["error"]["message"]);

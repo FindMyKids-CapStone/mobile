@@ -106,10 +106,8 @@ class _ListMemberState extends State<ListMember> {
                     ElevatedButton(
                         onPressed: () async {
                           FocusManager.instance.primaryFocus?.unfocus();
-                          ResponseModel res =
-                              await _groupController.updateGroup(
-                                  name: _nameController.text,
-                                  groupId: widget.targetGroup.id ?? "");
+                          ResponseModel res = await _groupController
+                              .updateGroup(name: _nameController.text);
                           _nameController.text = "";
                           setState(() {
                             isEditing = false;
