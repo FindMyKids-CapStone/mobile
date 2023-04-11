@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:app_parent/controllers/group_controller.dart';
 import 'package:app_parent/controllers/map_controller.dart';
 import 'package:app_parent/models/location.dart';
+import 'package:app_parent/src/chat_page/chat_page.dart';
 import 'package:app_parent/src/generated/streaming.pbgrpc.dart';
 import 'package:app_parent/src/map_page/widget/list_member_widget.dart';
 import 'package:app_parent/src/test/test.dart';
@@ -200,7 +201,10 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                       top: 10,
                       child: FloatingActionButton(
                         mini: true,
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) => const ChatPage()));
+                        },
                         backgroundColor: Colors.white,
                         child: const Icon(
                           Icons.message,

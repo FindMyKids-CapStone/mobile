@@ -73,16 +73,22 @@ class _ChatPageState extends State<ChatPage> {
   ];
 
   void _connectToServer() {
-    _socket = IO.io("http://35.202.63.4:8080/", <String, dynamic>{
-      "transports": ["websocket"],
-      "auth": {
-        "token": "${AppKey.authorization} " +
-            SPref.instance.get(AppKey.authorization)
-      }
-    });
+    _socket = IO.io(
+      "http://35.202.63.4:8080/",
+      <String, dynamic>{
+        "transports": ["websocket"],
+        "auth": {
+          "token":
+              "${AppKey.authorization} ${SPref.instance.get(AppKey.authorization)}"
+        }
+      },
+    );
     _socket.onConnect((_) {
-      _socket.emit("chat:join-room",
-          {"idGroup": "5cf89bb3-25b1-43cd-b4aa-d73819c330fc"});
+      _socket.emitWithAck(
+          "chat:join-room", {"idGroup": "5cf89bb3-25b1-43cd-b4aa-d73819c330fc"},
+          ack: (value) {
+        print("ACK JOIN CHAT ROOM: $value");
+      });
       print('CONNECT STATUS: CONNECT');
       _getAllMessage();
     });
@@ -90,8 +96,10 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _getAllMessage() {
-    _socket.emit("chat:get-all-message",
-        {"idGroup": "5cf89bb3-25b1-43cd-b4aa-d73819c330fc"});
+    _socket.emitWithAck("chat:get-all-message",
+        {"idGroup": "5cf89bb3-25b1-43cd-b4aa-d73819c330fc"}, ack: (value) {
+      print("ACK GET ALL MESSAGE: $value");
+    });
     _socket.on("chat:receive-message", (data) {
       print("ALL THE MESSAAGE: $data");
     });
@@ -194,10 +202,12 @@ class _ChatPageState extends State<ChatPage> {
                     color: Colors.blue,
                   ),
                   onPressed: () {
-                    print("CONNECT STATUS AFTER PRESS: ${_socket.connected}");
-                    _socket.emit("chat:send-message", {
+                    _socket.emitWithAck("chat:send-message", {
                       "idGroup": "5cf89bb3-25b1-43cd-b4aa-d73819c330fc",
-                      "message": textFieldController.text
+                      "content": textFieldController.text,
+                      "type": "text"
+                    }, ack: (value) {
+                      print("ACK SEND MESSAGE: $value");
                     });
                     _getAllMessage();
                     setState(() {
