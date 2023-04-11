@@ -84,7 +84,8 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
           if (result.isLoading) {
             return Container(
                 color: Colors.white,
-                child: const Center(child: CircularProgressIndicator()));
+                child: const Image(
+                    image: AssetImage("assets/img/zenly_logo.webp")));
           }
           print("Result $result");
           Group repositories = Group.fromJson(result.data?['groupByPK']);
@@ -142,7 +143,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                             backgroundColor: Colors.white,
                             titleTextStyle: const TextStyle(
                                 color: Colors.black87, fontSize: 19),
-                            title: const Text("Room"),
+                            title: Text(controller.targetGroup?.name ?? ""),
                             leading: GestureDetector(
                               child: const Icon(Icons.arrow_back,
                                   color: Colors.black87),
@@ -246,7 +247,8 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                 }
                 return Container(
                     color: Colors.white,
-                    child: const Center(child: CircularProgressIndicator()));
+                    child: const Image(
+                        image: AssetImage("assets/img/zenly_logo.webp")));
               });
         });
   }

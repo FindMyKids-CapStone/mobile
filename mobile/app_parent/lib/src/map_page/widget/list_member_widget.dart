@@ -1,4 +1,8 @@
+import 'package:animated_snack_bar/animated_snack_bar.dart';
+import 'package:app_parent/controllers/group_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:syncfusion_flutter_maps/maps.dart';
 
 import '../../../models/location.dart';
@@ -106,12 +110,57 @@ class _ListMemberState extends State<ListMember> {
                 Radius.circular(100),
               ),
             ),
-            child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent),
-                onPressed: () {},
-                child: const Text("Add new member"))),
+            child: GetBuilder<GroupController>(builder: (controller) {
+              return ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (dialogContext) {
+                        return SimpleDialog(
+                          children: [
+                            const Text(
+                                "Send this code to your friend so they can join group",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 15)),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            Text.rich(
+                                textAlign: TextAlign.center,
+                                TextSpan(children: [
+                                  TextSpan(
+                                    text: controller.targetGroup?.code ?? "",
+                                    style: TextStyle(
+                                        fontSize: 25,
+                                        color: HexColor("#4b4293"),
+                                        letterSpacing: 5,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                  WidgetSpan(
+                                      child: GestureDetector(
+                                    onTap: () {
+                                      Clipboard.setData(ClipboardData(
+                                              text:
+                                                  controller.targetGroup?.code))
+                                          .then((value) =>
+                                              AnimatedSnackBar.material(
+                                                "Copy to clipboard",
+                                                type: AnimatedSnackBarType.info,
+                                              ).show(dialogContext));
+                                    },
+                                    child: const Icon(Icons.copy),
+                                  ))
+                                ]))
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: const Text("Add new member"));
+            })),
       ]),
     );
   }

@@ -2,6 +2,7 @@ import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:app_parent/controllers/group_controller.dart';
 import 'package:app_parent/models/response.dart';
 import 'package:app_parent/share/dialog/confirm_dialog.dart';
+import 'package:app_parent/src/room_page/room_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -14,6 +15,7 @@ class SettingPage extends StatefulWidget {
 
 class _SettingPageState extends State<SettingPage> {
   final GroupController _groupController = Get.find<GroupController>();
+  bool isLoading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,7 +87,7 @@ class _SettingPageState extends State<SettingPage> {
                             ? AnimatedSnackBarType.success
                             : AnimatedSnackBarType.error,
                       ).show(context);
-                      Navigator.popUntil(context, (route) => route.isFirst);
+                      Get.offAll(const RoomPage());
                     },
                     confirmText: "Disband");
               },
@@ -113,6 +115,15 @@ class _SettingPageState extends State<SettingPage> {
               ),
             ),
           ),
+          isLoading
+              ? const SimpleDialog(
+                  children: [
+                    Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  ],
+                )
+              : const SizedBox.shrink()
         ]),
       ),
     );

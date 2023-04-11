@@ -73,9 +73,8 @@ class _RoomPageState extends State<RoomPage> {
           }
           if (result.isLoading) {
             return Container(
-                color: Colors.black,
-                child: const Image(
-                    image: AssetImage("assets/img/zenly-logo.jpg")));
+                color: Colors.white,
+                child: const Center(child: CircularProgressIndicator()));
           }
           print("Result ${result.data}");
           List<Group> groups = List<Group>.from(
