@@ -1,6 +1,7 @@
 import 'package:app_parent/controllers/group_controller.dart';
 import 'package:app_parent/models/response.dart';
 import 'package:app_parent/share/dialog/confirm_dialog.dart';
+import 'package:app_parent/src/setting_page/widget/change_password_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -20,7 +21,7 @@ class _SettingPageState extends State<SettingPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         titleTextStyle: const TextStyle(color: Colors.black87, fontSize: 19),
-        title: const Text("Cài đặt"),
+        title: const Text("Setting"),
         leading: GestureDetector(
           child: const Icon(Icons.arrow_back, color: Colors.black87),
           onTap: () {
@@ -71,7 +72,11 @@ class _SettingPageState extends State<SettingPage> {
           Material(
             child: InkWell(
               splashFactory: InkRipple.splashFactory,
-              onTap: () async {},
+              onTap: () {
+                showDialog(
+                    context: context,
+                    builder: (context2) => const DialogChangePassword());
+              },
               child: Ink(
                 decoration: BoxDecoration(
                     border: Border.all(color: Colors.black),
