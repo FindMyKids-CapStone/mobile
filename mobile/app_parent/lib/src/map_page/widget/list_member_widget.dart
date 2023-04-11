@@ -1,5 +1,7 @@
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:app_parent/controllers/group_controller.dart';
+import 'package:app_parent/models/group.dart';
+import 'package:app_parent/models/response.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -14,22 +16,23 @@ import 'item_member.dart';
 class ListMember extends StatefulWidget {
   ScrollController scrollController;
   MapZoomPanBehavior zoomPanBehavior;
-  List<UserModel> users;
   bool isAdmin;
-  String targetGroupId;
+  Group targetGroup;
   ListMember(
       {super.key,
       required this.zoomPanBehavior,
-      required this.users,
       required this.scrollController,
       required this.isAdmin,
-      required this.targetGroupId});
+      required this.targetGroup});
 
   @override
   State<ListMember> createState() => _ListMemberState();
 }
 
 class _ListMemberState extends State<ListMember> {
+  bool isEditing = false;
+  final TextEditingController _nameController = TextEditingController();
+  final GroupController _groupController = Get.find<GroupController>();
   @override
   Widget build(BuildContext context) {
     // return ListView(
@@ -61,19 +64,71 @@ class _ListMemberState extends State<ListMember> {
         Container(
             margin: const EdgeInsets.symmetric(horizontal: 20),
             width: double.infinity,
-            child: const Text("Members",
-                textAlign: TextAlign.left, style: TextStyle(fontSize: 23))),
+            child: !isEditing
+                ? Text.rich(
+                    textAlign: TextAlign.left,
+                    style: const TextStyle(fontSize: 23),
+                    TextSpan(
+                      text: widget.targetGroup.name,
+                      children: [
+                        WidgetSpan(
+                          child: Container(
+                            margin: const EdgeInsets.only(left: 10),
+                            child: GestureDetector(
+                                onTap: () {
+                                  _nameController.text =
+                                      widget.targetGroup.name ?? "";
+                                  setState(() {
+                                    isEditing = true;
+                                  });
+                                },
+                                child: const Icon(Icons.edit)),
+                          ),
+                        )
+                      ],
+                    ))
+                : Row(children: [
+                    SizedBox(
+                        width: 150,
+                        child: TextField(
+                          autofocus: true,
+                          controller: _nameController,
+                          style: const TextStyle(fontSize: 15),
+                          decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              isDense: true,
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 8)),
+                        )),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    ElevatedButton(
+                        onPressed: () async {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                          ResponseModel res =
+                              await _groupController.updateGroup(
+                                  name: _nameController.text,
+                                  groupId: widget.targetGroup.id ?? "");
+                          _nameController.text = "";
+                          setState(() {
+                            isEditing = false;
+                          });
+                        },
+                        child: const Text("Save"))
+                  ])),
+        const SizedBox(height: 20),
         ListView.builder(
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
-          itemCount: widget.users.length,
+          itemCount: widget.targetGroup.users?.length,
           itemBuilder: (context, index) {
-            UserModel responseData = widget.users[index];
+            UserModel responseData = widget.targetGroup.users![index];
             return Column(children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: ItemMember(
-                  targetGroupId: widget.targetGroupId,
+                  targetGroupId: widget.targetGroup.id ?? "",
                   isAdmin: widget.isAdmin,
                   user: responseData,
                   jumpToLocation: () async {

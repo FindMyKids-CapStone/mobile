@@ -1,7 +1,6 @@
 import 'package:app_parent/controllers/group_controller.dart';
 import 'package:app_parent/models/response.dart';
 import 'package:app_parent/share/dialog/confirm_dialog.dart';
-import 'package:app_parent/src/room_page/room_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -72,6 +71,36 @@ class _SettingPageState extends State<SettingPage> {
           Material(
             child: InkWell(
               splashFactory: InkRipple.splashFactory,
+              onTap: () async {},
+              child: Ink(
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black),
+                    borderRadius: const BorderRadius.all(Radius.circular(999))),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                  child: Row(
+                    children: const [
+                      Icon(
+                        Icons.password,
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        "Change Password",
+                        style: TextStyle(fontSize: 17),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          Material(
+            child: InkWell(
+              splashFactory: InkRipple.splashFactory,
               onTap: () async {
                 await showConfirmDialog(
                     title: "Disband group",
@@ -88,7 +117,8 @@ class _SettingPageState extends State<SettingPage> {
                       ResponseModel response =
                           await _groupController.disbandGroup();
                       Navigator.of(context, rootNavigator: true).pop();
-                      Get.off(const RoomPage());
+                      Get.back();
+                      Get.back();
                     },
                     confirmText: "Disband");
               },
@@ -116,15 +146,6 @@ class _SettingPageState extends State<SettingPage> {
               ),
             ),
           ),
-          isLoading
-              ? const SimpleDialog(
-                  children: [
-                    Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  ],
-                )
-              : const SizedBox.shrink()
         ]),
       ),
     );

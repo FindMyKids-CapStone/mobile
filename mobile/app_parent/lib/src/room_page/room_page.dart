@@ -156,12 +156,12 @@ class _RoomPageState extends State<RoomPage> {
                                     child: InkWell(
                                       splashFactory: InkRipple.splashFactory,
                                       onTap: () async {
+                                        controller.targetGroup =
+                                            controller.groups[index];
                                         Navigator.of(context).push(
                                             MaterialPageRoute(
-                                                builder: (_) => MapPage(
-                                                    targetGroupId: controller
-                                                            .groups[index].id ??
-                                                        "")));
+                                                builder: (_) =>
+                                                    const MapPage()));
                                       },
                                       child: Ink(
                                         child: ListTile(
