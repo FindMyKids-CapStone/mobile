@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:app_parent/controllers/group_controller.dart';
 import 'package:app_parent/models/response.dart';
+import 'package:app_parent/src/chat_page/chat_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
