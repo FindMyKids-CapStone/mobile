@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:app_parent/controllers/group_controller.dart';
 import 'package:app_parent/models/response.dart';
@@ -87,16 +89,29 @@ class _DialogCreateJoinState extends State<DialogCreateJoin> {
             ElevatedButton(
                 onPressed: () async {
                   if (widget.type == "create") {
+                    final dialogContextCompleter = Completer<BuildContext>();
+                    Navigator.pop(context);
+                    showDialog(
+                        context: context,
+                        builder: (dialogContext) {
+                          if (!dialogContextCompleter.isCompleted) {
+                            dialogContextCompleter.complete(dialogContext);
+                          }
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        });
                     ResponseModel res = await _groupController.createGroup(
                         _nameController.text, _passwordController.text);
-                    AnimatedSnackBar.material(
-                      res.message,
-                      type: res.isSuccess
-                          ? AnimatedSnackBarType.success
-                          : AnimatedSnackBarType.error,
-                    ).show(context);
+                    final dialogContext = await dialogContextCompleter.future;
+                    Navigator.pop(dialogContext);
+                    AnimatedSnackBar.material(res.message,
+                            type: res.isSuccess
+                                ? AnimatedSnackBarType.success
+                                : AnimatedSnackBarType.error,
+                            duration: const Duration(seconds: 1))
+                        .show(dialogContext);
                   }
-                  Navigator.pop(context);
                 },
                 child: Text(widget.type == "join" ? "Join" : "Create"))
           ]),

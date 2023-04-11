@@ -1,4 +1,3 @@
-import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:app_parent/controllers/group_controller.dart';
 import 'package:app_parent/models/response.dart';
 import 'package:app_parent/share/dialog/confirm_dialog.dart';
@@ -79,15 +78,17 @@ class _SettingPageState extends State<SettingPage> {
                     content: "Do you really want to disband this group?",
                     context: context,
                     confirmAction: () async {
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          });
                       ResponseModel response =
                           await _groupController.disbandGroup();
-                      AnimatedSnackBar.material(
-                        response.message,
-                        type: response.isSuccess
-                            ? AnimatedSnackBarType.success
-                            : AnimatedSnackBarType.error,
-                      ).show(context);
-                      Get.offAll(const RoomPage());
+                      Navigator.of(context, rootNavigator: true).pop();
+                      Get.off(const RoomPage());
                     },
                     confirmText: "Disband");
               },

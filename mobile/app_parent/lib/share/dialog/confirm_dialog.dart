@@ -20,14 +20,14 @@ Future showConfirmDialog({
         actions: <Widget>[
           TextButton(
               onPressed: () {
-                Navigator.pop(dialogContext);
+                Navigator.of(dialogContext).pop();
               },
               child: Text(cancelText ?? 'Cancel',
                   style: const TextStyle(color: Colors.red))),
           TextButton(
             onPressed: () {
+              Navigator.of(dialogContext).pop();
               confirmAction();
-              Navigator.pop(dialogContext);
             },
             child: Text(confirmText ?? 'Confirm',
                 style: TextStyle(color: Colors.green.shade600)),
