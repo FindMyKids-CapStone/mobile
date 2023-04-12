@@ -27,7 +27,13 @@ class _ChatPageState extends State<ChatPage> {
   final textFieldController = TextEditingController();
   final GroupController _groupController = Get.find<GroupController>();
   final User? _currentUser = FirebaseAuth.instance.currentUser;
-  List<Message> messageList = [];
+  List<Message> messageList = [
+    Message(
+        userID: "ISMfai2oRLd9rUeMPIfh2F8jiLF2",
+        message: "message from other users",
+        date: DateTime.now(),
+        sentByMe: false)
+  ];
 
   void _connectToServer() {
     _socket = IO.io(
@@ -65,6 +71,7 @@ class _ChatPageState extends State<ChatPage> {
 
         data.forEach((e) {
           messageList.add(Message(
+              userID: e["userID"],
               message: e["data"]["content"],
               date: DateTime.parse(e["createdAt"]),
               sentByMe: e["userID"] == _currentUser?.uid));
@@ -75,11 +82,22 @@ class _ChatPageState extends State<ChatPage> {
       print("MESSAAGE RECEIVED: $data");
       setState(() {
         messageList.add(Message(
+            userID: data["userID"],
             message: data["data"]["content"],
             date: DateTime.parse(data["createdAt"]),
             sentByMe: data["userID"] == _currentUser?.uid));
       });
     });
+  }
+
+  String? findSentUserIndex(String userID) {
+    int length = _groupController.targetGroup?.users?.length ?? 0;
+    for (int i = 0; i < length; i++) {
+      if (_groupController.targetGroup?.users?.elementAt(i).id == userID) {
+        return _groupController.targetGroup?.users?.elementAt(i).displayName;
+      }
+    }
+    return null;
   }
 
   @override
@@ -125,7 +143,7 @@ class _ChatPageState extends State<ChatPage> {
                         message.date.day,
                       ),
                       groupHeaderBuilder: (Message message) => Container(
-                        margin: const EdgeInsets.only(top: 10, bottom: 10),
+                        margin: const EdgeInsets.only(top: 20, bottom: 20),
                         child: Align(
                           alignment: Alignment.topCenter,
                           child: Text(
@@ -135,81 +153,101 @@ class _ChatPageState extends State<ChatPage> {
                         ),
                       ),
                       indexedItemBuilder: (context, message, index) {
-                        return Row(children: [
+                        return Column(children: [
                           !message.sentByMe
-                              ? const Padding(
-                                  padding: EdgeInsets.only(right: 10),
-                                  child: CircleAvatar(
-                                      radius: 15,
-                                      backgroundImage:
-                                          AssetImage("assets/img/avatar.jpg")),
+                              ? Row(
+                                  children: [
+                                    const SizedBox(
+                                      width: 50,
+                                      height: 10,
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        findSentUserIndex(message.userID) ??
+                                            "Unknown",
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                    ),
+                                  ],
                                 )
                               : const SizedBox(),
-                          Expanded(
-                            child: Bubble(
-                                margin: BubbleEdges.only(
-                                  top: 5,
-                                  bottom: 5,
-                                  left: message.sentByMe ? 60 : 0,
-                                  right: message.sentByMe ? 0 : 60,
-                                ),
-                                alignment: message.sentByMe
-                                    ? Alignment.topRight
-                                    : Alignment.topLeft,
-                                nip: message.sentByMe
-                                    ? BubbleNip.rightTop
-                                    : BubbleNip.leftTop,
-                                color: message.sentByMe
-                                    ? Colors.blue
-                                    : Colors.grey[200],
-                                child: Text(
-                                  message.message,
-                                  style: TextStyle(
-                                      color: message.sentByMe
-                                          ? Colors.white
-                                          : Colors.black),
-                                )),
-                          ),
+                          Row(children: [
+                            !message.sentByMe
+                                ? const Padding(
+                                    padding: EdgeInsets.only(right: 10),
+                                    child: CircleAvatar(
+                                        radius: 15,
+                                        backgroundImage: AssetImage(
+                                            "assets/img/default_avatar.png")),
+                                  )
+                                : const SizedBox(),
+                            Expanded(
+                              child: Bubble(
+                                  margin: BubbleEdges.only(
+                                    top: 5,
+                                    bottom: 5,
+                                    left: message.sentByMe ? 60 : 0,
+                                    right: message.sentByMe ? 0 : 60,
+                                  ),
+                                  alignment: message.sentByMe
+                                      ? Alignment.topRight
+                                      : Alignment.topLeft,
+                                  nip: message.sentByMe
+                                      ? BubbleNip.rightTop
+                                      : BubbleNip.leftTop,
+                                  color: message.sentByMe
+                                      ? Colors.blue
+                                      : Colors.grey[200],
+                                  child: Text(
+                                    message.message,
+                                    style: TextStyle(
+                                        color: message.sentByMe
+                                            ? Colors.white
+                                            : Colors.black),
+                                  )),
+                            ),
+                          ]),
                         ]);
                       },
                     ),
                   ),
                   Container(
                     margin: const EdgeInsets.all(15),
-                    child: TextField(
-                      keyboardType: TextInputType.multiline,
-                      maxLines: null,
-                      decoration: InputDecoration(
-                        border: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(40.0))),
-                        hintText: "Send a message ...",
-                        contentPadding: const EdgeInsets.only(
-                            top: 10, bottom: 10, left: 20, right: 20),
-                        suffixIcon: IconButton(
-                          icon: const Icon(
-                            Icons.send,
-                            color: Colors.blue,
-                          ),
-                          onPressed: () {
-                            _socket.emitWithAck("chat:send-message", {
-                              "idGroup": _groupController.targetGroup?.id,
-                              "content": textFieldController.text,
-                              "type": "text"
-                            }, ack: (value) {
-                              print("ACK SEND MESSAGE: $value");
-                            });
-                            // setState(() {
-                            //   messageList.add(Message(
-                            //       message: textFieldController.text,
-                            //       date: DateTime.now(),
-                            //       sentByMe: true));
-                            // });
-                            textFieldController.clear();
-                          },
-                        ),
+                    child: Theme(
+                      data: ThemeData(
+                        primaryColor: Colors.blue,
                       ),
-                      controller: textFieldController,
+                      child: TextField(
+                        cursorColor: Colors.blue,
+                        keyboardType: TextInputType.multiline,
+                        minLines: 1,
+                        maxLines: 10,
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(40.0))),
+                          hintText: "Send a message ...",
+                          contentPadding: const EdgeInsets.only(
+                              top: 10, bottom: 10, left: 20, right: 20),
+                          suffixIcon: IconButton(
+                            icon: const Icon(
+                              Icons.send,
+                              color: Colors.blue,
+                            ),
+                            onPressed: () {
+                              _socket.emitWithAck("chat:send-message", {
+                                "idGroup": _groupController.targetGroup?.id,
+                                "content": textFieldController.text,
+                                "type": "text"
+                              }, ack: (value) {
+                                print("ACK SEND MESSAGE: $value");
+                              });
+                              textFieldController.clear();
+                            },
+                          ),
+                        ),
+                        controller: textFieldController,
+                      ),
                     ),
                   )
                 ])
