@@ -2,6 +2,7 @@ import 'package:app_parent/controllers/group_controller.dart';
 import 'package:app_parent/models/user_model.dart';
 import 'package:app_parent/src/map_page/map_page.dart';
 import 'package:app_parent/src/room_page/widget/create_join_room.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -56,15 +57,13 @@ class _RoomPageState extends State<RoomPage> {
                   style: TextStyle(
                       color: Get.isDarkMode ? Colors.white : Colors.black),
                 ),
-                leading:
-                Builder(
-                  builder: (context) =>  IconButton(
-                      icon: const Icon(
-                        Icons.menu_rounded,
-                        color: Colors.indigo,
-                      ),
-                      onPressed: () => Scaffold.of(context).openDrawer())
-                ),
+                leading: Builder(
+                    builder: (context) => IconButton(
+                        icon: const Icon(
+                          Icons.menu_rounded,
+                          color: Colors.indigo,
+                        ),
+                        onPressed: () => Scaffold.of(context).openDrawer())),
                 actions: [
                   IconButton(
                       onPressed: () => _buildBottomSheetJoinOrCreate(context),
@@ -81,8 +80,8 @@ class _RoomPageState extends State<RoomPage> {
                   padding: EdgeInsets.zero,
                   children: [
                     UserAccountsDrawerHeader(
-                      accountName: Text('username'),
-                      accountEmail: Text('email'),
+                      accountName: const Text('username'),
+                      accountEmail: const Text('email'),
                       currentAccountPicture: CircleAvatar(
                         child: ClipOval(
                           child: Image.network(
@@ -93,7 +92,7 @@ class _RoomPageState extends State<RoomPage> {
                           ),
                         ),
                       ),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Colors.indigo,
                         // image: DecorationImage(
                         //     fit: BoxFit.fill,
@@ -102,13 +101,21 @@ class _RoomPageState extends State<RoomPage> {
                       ),
                     ),
                     ListTile(
-                      leading: Icon(Icons.logout_rounded, color: Colors.redAccent),
-                      title: Text('Logout',style:Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.redAccent) ,),
-                      onTap: (){},
+                      leading: const Icon(Icons.logout_rounded,
+                          color: Colors.redAccent),
+                      title: Text(
+                        'Logout',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(color: Colors.redAccent),
+                      ),
+                      onTap: () {
+                        FirebaseAuth.instance.signOut();
+                      },
                     )
                   ],
                 ),
-
               ),
               body: controller.groups.isEmpty
                   ? Container(
