@@ -17,42 +17,6 @@ class RoomPage extends StatefulWidget {
 }
 
 class _RoomPageState extends State<RoomPage> {
-  List<Group> rooms = [
-    Group(
-      id: '001',
-      name: 'asd',
-      createdAt: '02 - 03 - 12',
-      createdBy: 'aa',
-      code: '123',
-      users: <UserModel>[
-        UserModel(displayName: "Khe"),
-        UserModel(displayName: "Híu")
-      ],
-    ),
-    Group(
-      id: '002',
-      name: 'sdf',
-      createdAt: '02 - 03 - 12',
-      createdBy: 'aa',
-      code: '123',
-      users: <UserModel>[
-        UserModel(displayName: "Phát"),
-        UserModel(displayName: "Phúc")
-      ],
-    ),
-    Group(
-      id: '003',
-      name: 'dfg',
-      createdAt: '02 - 03 - 12',
-      createdBy: 'aa',
-      code: '123',
-      users: <UserModel>[
-        UserModel(displayName: "Chiến"),
-        UserModel(displayName: "Nhân"),
-        UserModel(displayName: "Trung")
-      ],
-    ),
-  ];
   TextEditingController nameController = TextEditingController();
   final GroupController _groupController = Get.put(GroupController());
 
@@ -92,12 +56,15 @@ class _RoomPageState extends State<RoomPage> {
                   style: TextStyle(
                       color: Get.isDarkMode ? Colors.white : Colors.black),
                 ),
-                leading: IconButton(
-                    icon: const Icon(
-                      Icons.menu,
-                      color: Colors.indigo,
-                    ),
-                    onPressed: () {}),
+                leading:
+                Builder(
+                  builder: (context) =>  IconButton(
+                      icon: const Icon(
+                        Icons.menu_rounded,
+                        color: Colors.indigo,
+                      ),
+                      onPressed: () => Scaffold.of(context).openDrawer())
+                ),
                 actions: [
                   IconButton(
                       onPressed: () => _buildBottomSheetJoinOrCreate(context),
@@ -107,6 +74,41 @@ class _RoomPageState extends State<RoomPage> {
                         size: 30,
                       )),
                 ],
+              ),
+              drawer: Drawer(
+                child: ListView(
+                  // Remove padding
+                  padding: EdgeInsets.zero,
+                  children: [
+                    UserAccountsDrawerHeader(
+                      accountName: Text('username'),
+                      accountEmail: Text('email'),
+                      currentAccountPicture: CircleAvatar(
+                        child: ClipOval(
+                          child: Image.network(
+                            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNL_ZnOTpXSvhf1UaK7beHey2BX42U6solRA&usqp=CAU',
+                            fit: BoxFit.cover,
+                            width: 90,
+                            height: 90,
+                          ),
+                        ),
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.indigo,
+                        // image: DecorationImage(
+                        //     fit: BoxFit.fill,
+                        //     image: NetworkImage('https://oflutter.com/wp-content/uploads/2021/02/profile-bg3.jpg')
+                        // ),
+                      ),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.logout_rounded, color: Colors.redAccent),
+                      title: Text('Logout',style:Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.redAccent) ,),
+                      onTap: (){},
+                    )
+                  ],
+                ),
+
               ),
               body: controller.groups.isEmpty
                   ? Container(
