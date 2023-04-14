@@ -42,9 +42,4 @@ class GroupFetch {
       }
     }
   """;
-
-  static String joinGroup = """
-  """;
-  static String createGroup = """
-  """;
 }

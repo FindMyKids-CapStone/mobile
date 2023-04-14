@@ -149,7 +149,7 @@ class _DialogCreateJoinState extends State<DialogCreateJoin> {
             );
           });
       ResponseModel res =
-          await _groupController.createGroup(groupId, groupPassword);
+          await _groupController.joinGroup(groupId, groupPassword);
       final dialogContext = await dialogContextCompleter.future;
       Navigator.pop(dialogContext);
       AnimatedSnackBar.material(res.message,
