@@ -79,7 +79,7 @@ class _SettingPageState extends State<SettingPage> {
               },
               child: Ink(
                 decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
+                    border: Border.all(color: Colors.blueGrey),
                     borderRadius: const BorderRadius.all(Radius.circular(999))),
                 child: Padding(
                   padding:
@@ -129,7 +129,7 @@ class _SettingPageState extends State<SettingPage> {
               },
               child: Ink(
                 decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
+                    border: Border.all(color: Colors.blueGrey),
                     borderRadius: const BorderRadius.all(Radius.circular(999))),
                 child: Padding(
                   padding:

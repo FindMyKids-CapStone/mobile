@@ -80,13 +80,17 @@ class _RoomPageState extends State<RoomPage> {
                   children: [
                     UserAccountsDrawerHeader(
                       accountName: Text(
-                          FirebaseAuth.instance.currentUser?.displayName ?? ""),
+                        FirebaseAuth.instance.currentUser?.displayName ?? "",
+                        style: const TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
                       accountEmail:
                           Text(FirebaseAuth.instance.currentUser?.email ?? ""),
                       currentAccountPicture: CircleAvatar(
                         child: ClipOval(
                           child: Image.network(
-                            FirebaseAuth.instance.currentUser?.photoURL ?? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNL_ZnOTpXSvhf1UaK7beHey2BX42U6solRA&usqp=CAU',
+                            FirebaseAuth.instance.currentUser?.photoURL ??
+                                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNL_ZnOTpXSvhf1UaK7beHey2BX42U6solRA&usqp=CAU',
                             fit: BoxFit.cover,
                             width: 90,
                             height: 90,
@@ -103,10 +107,6 @@ class _RoomPageState extends State<RoomPage> {
                       ),
                       decoration: const BoxDecoration(
                         color: Colors.indigo,
-                        // image: DecorationImage(
-                        //     fit: BoxFit.fill,
-                        //     image: NetworkImage('https://oflutter.com/wp-content/uploads/2021/02/profile-bg3.jpg')
-                        // ),
                       ),
                     ),
                     ListTile(
