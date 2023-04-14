@@ -1,5 +1,4 @@
 import 'package:app_parent/controllers/group_controller.dart';
-import 'package:app_parent/models/user_model.dart';
 import 'package:app_parent/src/map_page/map_page.dart';
 import 'package:app_parent/src/room_page/widget/create_join_room.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -80,15 +79,25 @@ class _RoomPageState extends State<RoomPage> {
                   padding: EdgeInsets.zero,
                   children: [
                     UserAccountsDrawerHeader(
-                      accountName: const Text('username'),
-                      accountEmail: const Text('email'),
+                      accountName: Text(
+                          FirebaseAuth.instance.currentUser?.displayName ?? ""),
+                      accountEmail:
+                          Text(FirebaseAuth.instance.currentUser?.email ?? ""),
                       currentAccountPicture: CircleAvatar(
                         child: ClipOval(
                           child: Image.network(
-                            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNL_ZnOTpXSvhf1UaK7beHey2BX42U6solRA&usqp=CAU',
+                            FirebaseAuth.instance.currentUser?.photoURL ?? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNL_ZnOTpXSvhf1UaK7beHey2BX42U6solRA&usqp=CAU',
                             fit: BoxFit.cover,
                             width: 90,
                             height: 90,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.network(
+                                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNL_ZnOTpXSvhf1UaK7beHey2BX42U6solRA&usqp=CAU',
+                                fit: BoxFit.cover,
+                                width: 90,
+                                height: 90,
+                              );
+                            },
                           ),
                         ),
                       ),
