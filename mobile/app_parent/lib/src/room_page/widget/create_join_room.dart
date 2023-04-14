@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:app_parent/controllers/group_controller.dart';
 import 'package:app_parent/models/response.dart';
-import 'package:app_parent/src/chat_page/chat_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -66,6 +65,7 @@ class _DialogCreateJoinState extends State<DialogCreateJoin> {
           height: 50,
           child: TextField(
             controller: _passwordController,
+            obscureText: true,
             decoration: const InputDecoration(
               hintStyle: TextStyle(fontSize: 15),
               hintText: 'Password',
@@ -89,29 +89,13 @@ class _DialogCreateJoinState extends State<DialogCreateJoin> {
             const SizedBox(width: 10),
             ElevatedButton(
                 onPressed: () async {
+                  final String groupId = _nameController.text;
+                  final String groupPassword = _passwordController.text;
+
                   if (widget.type == "create") {
-                    final dialogContextCompleter = Completer<BuildContext>();
-                    Navigator.pop(context);
-                    showDialog(
-                        context: context,
-                        builder: (dialogContext) {
-                          if (!dialogContextCompleter.isCompleted) {
-                            dialogContextCompleter.complete(dialogContext);
-                          }
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        });
-                    ResponseModel res = await _groupController.createGroup(
-                        _nameController.text, _passwordController.text);
-                    final dialogContext = await dialogContextCompleter.future;
-                    Navigator.pop(dialogContext);
-                    AnimatedSnackBar.material(res.message,
-                            type: res.isSuccess
-                                ? AnimatedSnackBarType.success
-                                : AnimatedSnackBarType.error,
-                            duration: const Duration(seconds: 1))
-                        .show(dialogContext);
+                    _createGroup(context, groupId, groupPassword);
+                  } else if (widget.type == "join") {
+                    _joinGroup(context, groupId, groupPassword);
                   }
                 },
                 child: Text(widget.type == "join" ? "Join" : "Create"))
@@ -119,5 +103,61 @@ class _DialogCreateJoinState extends State<DialogCreateJoin> {
         ),
       ],
     );
+  }
+
+  Future<void> _createGroup(
+      BuildContext context, String groupId, String groupPassword) async {
+    {
+      final dialogContextCompleter = Completer<BuildContext>();
+      Navigator.pop(context);
+      showDialog(
+          context: context,
+          builder: (dialogContext) {
+            if (!dialogContextCompleter.isCompleted) {
+              dialogContextCompleter.complete(dialogContext);
+            }
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          });
+      ResponseModel res =
+          await _groupController.createGroup(groupId, groupPassword);
+      final dialogContext = await dialogContextCompleter.future;
+      Navigator.pop(dialogContext);
+      AnimatedSnackBar.material(res.message,
+              type: res.isSuccess
+                  ? AnimatedSnackBarType.success
+                  : AnimatedSnackBarType.error,
+              duration: const Duration(seconds: 1))
+          .show(dialogContext);
+    }
+  }
+
+  Future<void> _joinGroup(
+      BuildContext context, String groupId, String groupPassword) async {
+    {
+      final dialogContextCompleter = Completer<BuildContext>();
+      Navigator.pop(context);
+      showDialog(
+          context: context,
+          builder: (dialogContext) {
+            if (!dialogContextCompleter.isCompleted) {
+              dialogContextCompleter.complete(dialogContext);
+            }
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          });
+      ResponseModel res =
+          await _groupController.createGroup(groupId, groupPassword);
+      final dialogContext = await dialogContextCompleter.future;
+      Navigator.pop(dialogContext);
+      AnimatedSnackBar.material(res.message,
+              type: res.isSuccess
+                  ? AnimatedSnackBarType.success
+                  : AnimatedSnackBarType.error,
+              duration: const Duration(seconds: 1))
+          .show(dialogContext);
+    }
   }
 }
