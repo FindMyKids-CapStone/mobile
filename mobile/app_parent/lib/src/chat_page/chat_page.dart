@@ -27,13 +27,7 @@ class _ChatPageState extends State<ChatPage> {
   final textFieldController = TextEditingController();
   final GroupController _groupController = Get.find<GroupController>();
   final User? _currentUser = FirebaseAuth.instance.currentUser;
-  List<Message> messageList = [
-    Message(
-        userID: "ISMfai2oRLd9rUeMPIfh2F8jiLF2",
-        message: "message from other users",
-        date: DateTime.now(),
-        sentByMe: false)
-  ];
+  List<Message> messageList = [];
 
   void _connectToServer() {
     _socket = IO.io(
@@ -70,7 +64,10 @@ class _ChatPageState extends State<ChatPage> {
         print("DATA: $data");
 
         data.forEach((e) {
+          String photoURL =
+              findSentUserImg(e["userID"]) ?? "assets/img/default_avatar.png";
           messageList.add(Message(
+              photoURL: photoURL,
               userID: e["userID"],
               message: e["data"]["content"],
               date: DateTime.parse(e["createdAt"]),
@@ -81,7 +78,10 @@ class _ChatPageState extends State<ChatPage> {
     _socket.on("chat:receive-message", (data) {
       print("MESSAAGE RECEIVED: $data");
       setState(() {
+        String photoURL =
+            findSentUserImg(data["userID"]) ?? "assets/img/default_avatar.png";
         messageList.add(Message(
+            photoURL: photoURL,
             userID: data["userID"],
             message: data["data"]["content"],
             date: DateTime.parse(data["createdAt"]),
@@ -90,11 +90,21 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  String? findSentUserIndex(String userID) {
+  String? findSentUserName(String userID) {
     int length = _groupController.targetGroup?.users?.length ?? 0;
     for (int i = 0; i < length; i++) {
       if (_groupController.targetGroup?.users?.elementAt(i).id == userID) {
         return _groupController.targetGroup?.users?.elementAt(i).displayName;
+      }
+    }
+    return null;
+  }
+
+  String? findSentUserImg(String userID) {
+    int length = _groupController.targetGroup?.users?.length ?? 0;
+    for (int i = 0; i < length; i++) {
+      if (_groupController.targetGroup?.users?.elementAt(i).id == userID) {
+        return _groupController.targetGroup?.users?.elementAt(i).photoURL;
       }
     }
     return null;
@@ -163,7 +173,7 @@ class _ChatPageState extends State<ChatPage> {
                                     ),
                                     Expanded(
                                       child: Text(
-                                        findSentUserIndex(message.userID) ??
+                                        findSentUserName(message.userID) ??
                                             "Unknown",
                                         style: const TextStyle(fontSize: 12),
                                       ),
@@ -173,12 +183,12 @@ class _ChatPageState extends State<ChatPage> {
                               : const SizedBox(),
                           Row(children: [
                             !message.sentByMe
-                                ? const Padding(
-                                    padding: EdgeInsets.only(right: 10),
+                                ? Padding(
+                                    padding: const EdgeInsets.only(right: 10),
                                     child: CircleAvatar(
                                         radius: 15,
-                                        backgroundImage: AssetImage(
-                                            "assets/img/default_avatar.png")),
+                                        backgroundImage:
+                                            AssetImage(message.photoURL)),
                                   )
                                 : const SizedBox(),
                             Expanded(

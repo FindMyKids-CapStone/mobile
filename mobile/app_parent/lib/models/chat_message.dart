@@ -1,11 +1,13 @@
 class Message {
+  final String photoURL;
   final String userID;
   final String message;
   final DateTime date;
   final bool sentByMe;
 
   const Message(
-      {required this.userID,
+      {this.photoURL = "assets/img/default_avatar.png",
+      required this.userID,
       required this.message,
       required this.date,
       required this.sentByMe});
