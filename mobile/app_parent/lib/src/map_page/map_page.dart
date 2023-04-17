@@ -29,6 +29,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
   late MapTileLayerController _mapTileLayerController;
   List<MapMarker> marker = [];
   late Timer _timer;
+  late Timer _fetchGroupById;
   late Position position;
   final MapZoomPanBehavior _zoomPanBehavior = MapZoomPanBehavior(
       focalLatLng: const MapLatLng(0, 0),
@@ -74,6 +75,9 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
               []);
       _mapCustomController.locations = locations;
       _mapCustomController.update();
+    });
+    _fetchGroupById = Timer.periodic(const Duration(seconds: 10), (_) async {
+      if (_groupController.targetGroup != null) {}
     });
   }
 

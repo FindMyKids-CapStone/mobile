@@ -24,13 +24,16 @@ class _RoomPageState extends State<RoomPage> {
   Widget build(BuildContext context) {
     return Query(
         options: QueryOptions(
-            document: gql(GroupFetch.getListGroup),
-            fetchPolicy: FetchPolicy.noCache,
-            variables: const {
-              "page": 1,
-              "limit": 100,
-            }),
+          document: gql(GroupFetch.getListGroup),
+          fetchPolicy: FetchPolicy.noCache,
+          variables: const {
+            "page": 1,
+            "limit": 100,
+          },
+          pollInterval: const Duration(seconds: 3),
+        ),
         builder: (result, {fetchMore, refetch}) {
+          print("abc");
           if (result.hasException) {
             print(result.exception.toString());
             return const Center(child: Text("Error"));
@@ -44,6 +47,13 @@ class _RoomPageState extends State<RoomPage> {
           List<Group> groups = List<Group>.from(
               result.data?['group']["group"].map((d) => Group.fromJson(d)));
           _groupController.groups = groups;
+          if (_groupController.targetGroup != null) {
+            Group? target = groups.firstWhereOrNull(
+                (element) => element.id == _groupController.targetGroup!.id);
+            if (target != null) {
+              _groupController.targetGroup = target;
+            }
+          }
           // _groupController.update();
           return GetBuilder<GroupController>(builder: (controller) {
             return Scaffold(
