@@ -28,6 +28,7 @@ class _ChatPageState extends State<ChatPage> {
   final GroupController _groupController = Get.find<GroupController>();
   final User? _currentUser = FirebaseAuth.instance.currentUser;
   List<Message> messageList = [];
+  final String defaultAvatar = "assets/img/default_avatar.png";
 
   void _connectToServer() {
     _socket = IO.io(
@@ -64,8 +65,7 @@ class _ChatPageState extends State<ChatPage> {
         print("DATA: $data");
 
         data.forEach((e) {
-          String photoURL =
-              findSentUserImg(e["userID"]) ?? "assets/img/default_avatar.png";
+          String photoURL = findSentUserImg(e["userID"]) ?? defaultAvatar;
           messageList.add(Message(
               photoURL: photoURL,
               userID: e["userID"],
@@ -78,8 +78,7 @@ class _ChatPageState extends State<ChatPage> {
     _socket.on("chat:receive-message", (data) {
       print("MESSAAGE RECEIVED: $data");
       setState(() {
-        String photoURL =
-            findSentUserImg(data["userID"]) ?? "assets/img/default_avatar.png";
+        String photoURL = findSentUserImg(data["userID"]) ?? defaultAvatar;
         messageList.add(Message(
             photoURL: photoURL,
             userID: data["userID"],
@@ -104,6 +103,8 @@ class _ChatPageState extends State<ChatPage> {
     int length = _groupController.targetGroup?.users?.length ?? 0;
     for (int i = 0; i < length; i++) {
       if (_groupController.targetGroup?.users?.elementAt(i).id == userID) {
+        print(
+            "PHOTO URL OF USER: ${_groupController.targetGroup?.users?.elementAt(i).photoURL}");
         return _groupController.targetGroup?.users?.elementAt(i).photoURL;
       }
     }
@@ -187,8 +188,11 @@ class _ChatPageState extends State<ChatPage> {
                                     padding: const EdgeInsets.only(right: 10),
                                     child: CircleAvatar(
                                         radius: 15,
-                                        backgroundImage:
-                                            AssetImage(message.photoURL)),
+                                        backgroundImage: message.photoURL ==
+                                                defaultAvatar
+                                            ? AssetImage(defaultAvatar)
+                                                as ImageProvider
+                                            : NetworkImage(message.photoURL)),
                                   )
                                 : const SizedBox(),
                             Expanded(
