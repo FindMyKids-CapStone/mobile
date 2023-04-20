@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:app_parent/controllers/group_controller.dart';
 import 'package:app_parent/controllers/map_controller.dart';
 import 'package:app_parent/models/location.dart';
+import 'package:app_parent/models/user_model.dart';
 import 'package:app_parent/src/chat_page/chat_page.dart';
 import 'package:app_parent/src/generated/streaming.pbgrpc.dart';
 import 'package:app_parent/src/map_page/widget/list_member_widget.dart';
@@ -110,8 +111,36 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                 () {
                   marker = [
                     MapMarker(
-                        latitude: snapshot.data?.latitude ?? 0,
-                        longitude: snapshot.data?.longitude ?? 0)
+                      latitude: snapshot.data?.latitude ?? 0,
+                      longitude: snapshot.data?.longitude ?? 0,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/img/marker.png',
+                            width: 60,
+                            height: 60,
+                          ),
+                          Positioned(
+                            top: 5,
+                            child: FirebaseAuth
+                                        .instance.currentUser?.photoURL !=
+                                    null
+                                ? CircleAvatar(
+                                    radius: 15,
+                                    backgroundImage: NetworkImage(FirebaseAuth
+                                            .instance.currentUser?.photoURL ??
+                                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNL_ZnOTpXSvhf1UaK7beHey2BX42U6solRA&usqp=CAU"))
+                                : const CircleAvatar(
+                                    backgroundColor: Colors.white,
+                                    radius: 15,
+                                    backgroundImage:
+                                        AssetImage("assets/img/avatar.png"),
+                                  ),
+                          ),
+                        ],
+                      ),
+                    )
                   ];
                 },
               );
@@ -158,11 +187,68 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                       body: GetBuilder<MapCustomController>(
                           builder: (controller) {
                         return StatefulBuilder(builder: (context, mapSetState) {
-                          List<MapMarker> newMarkers = controller.locations
-                              .map((location) => MapMarker(
-                                  latitude: location.latitude,
-                                  longitude: location.longitude))
-                              .toList();
+                          List<MapMarker> newMarkers =
+                              controller.locations.map((location) {
+                            UserModel? targetUser =
+                                _groupController.targetGroup?.users?.firstWhere(
+                                    (element) => element.id == location.userId);
+                            if (targetUser != null) {
+                              return MapMarker(
+                                latitude: location.latitude,
+                                longitude: location.longitude,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Image.asset(
+                                      'assets/img/marker.png',
+                                      width: 60,
+                                      height: 60,
+                                    ),
+                                    Positioned(
+                                      top: 5,
+                                      child: targetUser.photoURL != null
+                                          ? CircleAvatar(
+                                              backgroundImage: NetworkImage(
+                                                  targetUser.photoURL ??
+                                                      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNL_ZnOTpXSvhf1UaK7beHey2BX42U6solRA&usqp=CAU"),
+                                              radius: 15,
+                                            )
+                                          : const CircleAvatar(
+                                              backgroundColor: Colors.white,
+                                              backgroundImage: AssetImage(
+                                                  "assets/img/avatar.png"),
+                                              radius: 15,
+                                            ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            } else {
+                              return MapMarker(
+                                latitude: location.latitude,
+                                longitude: location.longitude,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Image.asset(
+                                      'assets/img/marker.png',
+                                      width: 60,
+                                      height: 60,
+                                    ),
+                                    const Positioned(
+                                      top: 5,
+                                      child: CircleAvatar(
+                                        backgroundColor: Colors.white,
+                                        backgroundImage:
+                                            AssetImage("assets/img/avatar.png"),
+                                        radius: 15,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                          }).toList();
                           if (newMarkers.isNotEmpty) {
                             if (_mapTileLayerController.markersCount > 0) {
                               _mapTileLayerController.clearMarkers();

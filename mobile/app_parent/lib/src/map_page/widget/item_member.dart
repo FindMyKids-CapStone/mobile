@@ -51,9 +51,17 @@ class _ItemMemberState extends State<ItemMember> {
                               NetworkImage(widget.user.photoURL ?? ""),
                           radius: 24,
                         )
-                      : const CircleAvatar(
-                          backgroundImage: AssetImage("assets/img/avatar.jpg"),
-                          radius: 24,
+                      : Container(
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Colors.black, width: 2),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(30))),
+                          child: const CircleAvatar(
+                            backgroundColor: Colors.white,
+                            backgroundImage:
+                                AssetImage("assets/img/avatar.png"),
+                            radius: 24,
+                          ),
                         )),
               const SizedBox(width: 10),
               Column(

@@ -1,6 +1,6 @@
 import 'package:app_parent/controllers/group_controller.dart';
 import 'package:app_parent/models/response.dart';
-import 'package:app_parent/share/dialog/confirm_dialog.dart';
+import 'package:app_parent/share/widget/confirm_dialog.dart';
 import 'package:app_parent/src/setting_page/widget/change_password_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
