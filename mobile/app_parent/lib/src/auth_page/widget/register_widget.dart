@@ -1,7 +1,7 @@
+import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:motion_toast/motion_toast.dart';
 
 import '../../core/colors/hex_color.dart';
 import '../../core/fade_animation.dart';
@@ -81,13 +81,14 @@ class _RegisterWidgetState extends State<RegisterWidget> {
                       children: [
                         FadeAnimation(
                           delay: 0.8,
-                          child: ClipRRect(
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(10)),
+                          child: Container(
+                              width: 200,
+                              height: 100,
+                              decoration: const BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(90))),
                               child: Image.asset(
-                                "assets/img/logo.png",
-                                width: 100,
-                                height: 100,
+                                "assets/img/zenly.webp",
                               )),
                         ),
                         const SizedBox(
@@ -97,10 +98,12 @@ class _RegisterWidgetState extends State<RegisterWidget> {
                           delay: 1,
                           child: Container(
                             child: Text(
-                              "Tạo tài khoản",
+                              "Sign up",
                               style: TextStyle(
                                   color: Colors.white.withOpacity(0.9),
-                                  letterSpacing: 0.5),
+                                  letterSpacing: 0.5,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),
@@ -133,7 +136,7 @@ class _RegisterWidgetState extends State<RegisterWidget> {
                                     : disable,
                                 size: 20,
                               ),
-                              hintText: 'Họ và tên',
+                              hintText: 'Full name',
                               hintStyle: TextStyle(
                                   color: selected == FormData.Name
                                       ? enabledTxt
@@ -150,7 +153,7 @@ class _RegisterWidgetState extends State<RegisterWidget> {
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
                             validator: (name) => name != null && name == ""
-                                ? 'Vui lòng nhập tên hoặc biệt danh'
+                                ? 'Please input a full name'
                                 : null,
                           ),
                         ),
@@ -201,7 +204,7 @@ class _RegisterWidgetState extends State<RegisterWidget> {
                                 AutovalidateMode.onUserInteraction,
                             validator: (email) =>
                                 email != null && !EmailValidator.validate(email)
-                                    ? 'Vui lòng nhập email hợp lệ'
+                                    ? 'Please input a valid email'
                                     : null,
                           ),
                         ),
@@ -253,7 +256,7 @@ class _RegisterWidgetState extends State<RegisterWidget> {
                                   onPressed: () => setState(() =>
                                       isPasswordHidden = !isPasswordHidden),
                                 ),
-                                hintText: 'Mật khẩu',
+                                hintText: 'Password',
                                 hintStyle: TextStyle(
                                     color: selected == FormData.Password
                                         ? enabledTxt
@@ -319,7 +322,7 @@ class _RegisterWidgetState extends State<RegisterWidget> {
                                   onPressed: () => setState(() =>
                                       isRePasswordHidden = !isRePasswordHidden),
                                 ),
-                                hintText: 'Xác nhận lại mật khẩu',
+                                hintText: 'Confirm Password',
                                 hintStyle: TextStyle(
                                     color: selected == FormData.ConfirmPassword
                                         ? enabledTxt
@@ -337,7 +340,7 @@ class _RegisterWidgetState extends State<RegisterWidget> {
                                 AutovalidateMode.onUserInteraction,
                             validator: (password) => password != null &&
                                     password != passwordController.text
-                                ? "Mật khẩu không chính xác"
+                                ? "Confirm password not correct"
                                 : null,
                           ),
                         ),
@@ -361,14 +364,10 @@ class _RegisterWidgetState extends State<RegisterWidget> {
                                               passwordController.text.trim());
                                   await credential.user
                                       ?.updateDisplayName(nameController.text);
-                                } on FirebaseAuthException catch (e) {
-                                  print(e);
-                                  setState(() {
-                                    _loading = false;
-                                  });
-                                  MotionToast.error(
-                                    title: const Text("Thất bại"),
-                                    description: const Text("Đăng ký thất bại"),
+                                } on FirebaseAuthException {
+                                  AnimatedSnackBar.material(
+                                    "Sign up failed",
+                                    type: AnimatedSnackBarType.error,
                                   ).show(context);
                                 }
                               },

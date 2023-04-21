@@ -1,3 +1,4 @@
+import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:app_parent/src/forgot_password_page/forgot_password_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -85,13 +86,14 @@ class _LoginWidgetState extends State<LoginWidget> {
                       children: [
                         FadeAnimation(
                           delay: 0.8,
-                          child: ClipRRect(
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(10)),
+                          child: Container(
+                              width: 200,
+                              height: 100,
+                              decoration: const BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(90))),
                               child: Image.asset(
-                                "assets/img/logo.png",
-                                width: 100,
-                                height: 100,
+                                "assets/img/zenly.webp",
                               )),
                         ),
                         const SizedBox(
@@ -100,9 +102,12 @@ class _LoginWidgetState extends State<LoginWidget> {
                         const FadeAnimation(
                           delay: 1,
                           child: Text(
-                            "Vui lòng đăng nhập",
+                            "Login",
                             style: TextStyle(
-                                color: Colors.white, letterSpacing: 0.5),
+                                color: Colors.white,
+                                letterSpacing: 0.5,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
                         const SizedBox(
@@ -198,7 +203,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                   onPressed: () => setState(() =>
                                       isPasswordHidden = !isPasswordHidden),
                                 ),
-                                hintText: 'Mật khẩu',
+                                hintText: 'Password',
                                 hintStyle: TextStyle(
                                     color: selected == FormData.password
                                         ? enabledTxt
@@ -232,8 +237,14 @@ class _LoginWidgetState extends State<LoginWidget> {
                                           password:
                                               passwordController.text.trim());
                                 } on FirebaseAuthException catch (e) {
-                                  print("Error Login, $e");
+                                  AnimatedSnackBar.material(
+                                    e.message ?? "",
+                                    type: AnimatedSnackBarType.error,
+                                  ).show(context);
                                 }
+                                setState(() {
+                                  _loading = false;
+                                });
                               },
                               style: TextButton.styleFrom(
                                   backgroundColor: const Color(0xFF2697FF),
@@ -250,7 +261,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                         color: Colors.white,
                                       ))
                                   : const Text(
-                                      "Đăng nhập",
+                                      "Login",
                                       style: TextStyle(
                                         color: Colors.white,
                                         letterSpacing: 0.5,
@@ -273,13 +284,12 @@ class _LoginWidgetState extends State<LoginWidget> {
                   delay: 1,
                   child: GestureDetector(
                     onTap: (() {
-                      Navigator.pop(context);
                       Navigator.of(context)
                           .push(MaterialPageRoute(builder: (context) {
                         return const ForgotPasswordPage();
                       }));
                     }),
-                    child: Text("Quên mật khẩu?",
+                    child: Text("Forgot Password?",
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.9),
                           letterSpacing: 0.5,
@@ -293,14 +303,14 @@ class _LoginWidgetState extends State<LoginWidget> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text("Chưa có tài khoản? ",
+                      const Text("Don't have a account? ",
                           style: TextStyle(
                             color: Colors.grey,
                             letterSpacing: 0.5,
                           )),
                       GestureDetector(
                         onTap: widget.onClickedRegister,
-                        child: Text("Đăng ký",
+                        child: Text("Sign up",
                             style: TextStyle(
                                 color: Colors.white.withOpacity(0.9),
                                 fontWeight: FontWeight.bold,

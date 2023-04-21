@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../core/colors/hex_color.dart';
@@ -146,16 +147,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           delay: 1,
                           child: TextButton(
                               onPressed: () async {
-                                // await FirebaseAuth.instance
-                                //     .sendPasswordResetEmail(
-                                //         email: emailController.value.text)
-                                //     .whenComplete(() {
-                                //   Navigator.pop(context);
-                                //   Navigator.of(context).push(
-                                //       MaterialPageRoute(builder: (context) {
-                                //     return const LoginPage();
-                                //   }));
-                                // });
+                                await FirebaseAuth.instance
+                                    .sendPasswordResetEmail(
+                                        email: emailController.value.text)
+                                    .whenComplete(() {
+                                  Navigator.pop(context);
+                                });
                               },
                               style: TextButton.styleFrom(
                                   backgroundColor: const Color(0xFF2697FF),
