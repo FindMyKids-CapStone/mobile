@@ -68,13 +68,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       children: [
                         FadeAnimation(
                           delay: 0.8,
-                          child: ClipRRect(
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(10)),
+                          child: Container(
+                              width: 200,
+                              height: 100,
+                              decoration: const BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(90))),
                               child: Image.asset(
-                                "assets/img/logo.png",
-                                width: 100,
-                                height: 100,
+                                "assets/img/zenly.webp",
                               )),
                         ),
                         const SizedBox(
@@ -84,7 +85,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           delay: 1,
                           child: Container(
                             child: Text(
-                              "Vui lòng nhập email",
+                              "Please input your email",
                               style: TextStyle(
                                   color: Colors.white.withOpacity(0.9),
                                   letterSpacing: 0.5),
@@ -162,7 +163,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                       borderRadius:
                                           BorderRadius.circular(12.0))),
                               child: const Text(
-                                "Tiếp tục",
+                                "continue",
                                 style: TextStyle(
                                   color: Colors.white,
                                   letterSpacing: 0.5,
@@ -188,20 +189,16 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text("Đăng nhập lại? ",
+                      const Text("Want to try login again? ",
                           style: TextStyle(
                             color: Colors.grey,
                             letterSpacing: 0.5,
                           )),
                       GestureDetector(
                         onTap: () {
-                          // Navigator.pop(context);
-                          // Navigator.of(context)
-                          //     .push(MaterialPageRoute(builder: (context) {
-                          //   return const LoginPage();
-                          // }));
+                          Navigator.pop(context);
                         },
-                        child: Text("Đăng nhập",
+                        child: Text("Login",
                             style: TextStyle(
                                 color: Colors.white.withOpacity(0.9),
                                 fontWeight: FontWeight.bold,

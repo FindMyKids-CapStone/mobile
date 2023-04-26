@@ -386,7 +386,7 @@ class _RegisterWidgetState extends State<RegisterWidget> {
                                         color: Colors.white,
                                       ))
                                   : const Text(
-                                      "Đăng ký",
+                                      "Sign up",
                                       style: TextStyle(
                                         color: Colors.white,
                                         letterSpacing: 0.5,
@@ -412,14 +412,14 @@ class _RegisterWidgetState extends State<RegisterWidget> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text("Đã có tài khoản? ",
+                      const Text("Already have an account? ",
                           style: TextStyle(
                             color: Colors.grey,
                             letterSpacing: 0.5,
                           )),
                       GestureDetector(
                         onTap: widget.onClickedLogin,
-                        child: Text("Đăng nhập",
+                        child: Text("Login",
                             style: TextStyle(
                                 color: Colors.white.withOpacity(0.9),
                                 fontWeight: FontWeight.bold,
