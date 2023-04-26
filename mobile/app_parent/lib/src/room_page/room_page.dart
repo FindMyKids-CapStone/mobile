@@ -62,7 +62,7 @@ class _RoomPageState extends State<RoomPage> {
                 elevation: 0,
                 centerTitle: true,
                 title: Text(
-                  "Conversations",
+                  "Groups",
                   style: TextStyle(
                       color: Get.isDarkMode ? Colors.white : Colors.black),
                 ),
